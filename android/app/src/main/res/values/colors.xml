@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg">#12100E</color>
-    <color name="ink">#E8E2D8</color>
-    <color name="muted">#8A8074</color>
-    <color name="divider">#2A2622</color>
+    <!-- Claude 式暗色：暖黑底、米白字、珊瑚橙只用在「要你看」的地方。
+         刻意不用纯黑 #000：暖一点才像纸，不像终端。 -->
+    <color name="bg">#1B1A18</color>
+    <color name="card">#24231F</color>
+    <color name="border">#34322C</color>
+    <color name="ink">#EFEBE2</color>
+    <color name="muted">#A49C90</color>
+    <color name="faint">#6E675E</color>
+    <color name="accent">#D97757</color>
+    <color name="accent_soft">#3A2A22</color>
+    <!-- 旧布局还在引用这个名字，留着当 border 的别名 -->
+    <color name="divider">#34322C</color>
 </resources>
