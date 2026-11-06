@@ -62,20 +62,17 @@ public class AutoWriteReceiver extends BroadcastReceiver {
             src.add(line);
         }
 
-        new Lm().rewrite(store.endpoint(), store.apiKey(), store.model(), src,
-                new Lm.Callback() {
+        new Lm().summarize(store.endpoint(), store.apiKey(), store.model(), src,
+                new Lm.SummaryCallback() {
                     @Override
-                    public void onDone(String[] lines, boolean fromModel, String note) {
-                        int n = 0;
-                        for (int i = 0; i < events.size() && i < lines.length; i++) {
-                            if (lines[i] != null && !lines[i].trim().isEmpty()) {
-                                events.get(i).its = lines[i];
-                                n++;
-                            }
+                    public void onDone(Store.Summary s, boolean fromModel, String note) {
+                        if (s != null) {
+                            store.saveSummary(s);
                         }
-                        store.save(events);
+                        int need = s == null ? 0 : s.needCount();
                         AutoWrite.notifyDone(app, fromModel
-                                ? "今天的话写好了，" + n + " 条"
+                                ? (need > 0 ? "整理好了，今天有 " + need + " 件事要你看"
+                                            : "整理好了，今天没什么要你看的")
                                 : "模型没连上，用了兜底：" + note);
                         AutoWrite.reschedule(app);
                         pr.finish();

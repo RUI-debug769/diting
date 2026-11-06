@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -28,10 +31,16 @@ import java.util.Locale;
  */
 public class SettingsActivity extends Activity {
 
-    private static final int BG     = 0xFF12100E;
-    private static final int INK    = 0xFFE8E2D8;
-    private static final int FAINT  = 0xFF6B635A;
-    private static final int DIVIDE = 0xFF2A2622;
+
+    /** 圆角底：主屏的卡片和这里的输入框、按钮共用一个形状语言。 */
+    private android.graphics.drawable.GradientDrawable round(int fill, int radiusDp) {
+        android.graphics.drawable.GradientDrawable g =
+                new android.graphics.drawable.GradientDrawable();
+        g.setColor(fill);
+        g.setCornerRadius(dp(radiusDp));
+        g.setStroke(dp(1), Theme.BORDER);
+        return g;
+    }
 
     private static final int REQ_AUDIO = 2001;
 
@@ -64,16 +73,27 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         store = new Store(this);
+        Theme.set(store.themeMode());
         start = store.windowStart();
         end = store.windowEnd();
         autoAt = store.autoAt();
 
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(BG);
+        scroll.setBackgroundColor(Theme.BG);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18), dp(18), dp(18), dp(28));
+
+        getWindow().setStatusBarColor(Theme.BG);
+        View decor0 = getWindow().getDecorView();
+        int sf = decor0.getSystemUiVisibility();
+        if (Theme.mode == Theme.LIGHT) {
+            sf |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        } else {
+            sf &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        }
+        decor0.setSystemUiVisibility(sf);
 
         root.addView(titleRow());
         root.addView(group("板子什么时候记"));
@@ -86,22 +106,33 @@ public class SettingsActivity extends Activity {
         autoHint = label("");
         root.addView(autoHint);
 
+        root.addView(group("外观"));
+        root.addView(themeRow());
+
         root.addView(group("我的声音"));
         voiceState = small("正在问云端…");
         root.addView(voiceState);
-        root.addView(bigButton("录一次声音（说 8 秒）", new View.OnClickListener() {
+        root.addView(iconButton(Icons.MIC, "录一次（说 8 秒）", new View.OnClickListener() {
             @Override public void onClick(View v) {
                 enrollVoice();
             }
         }));
-        root.addView(bigButton("用板子的麦克风录（对着板子说 8 秒）", new View.OnClickListener() {
+        root.addView(iconButton(Icons.MIC, "用板子的麦克风", new View.OnClickListener() {
             @Override public void onClick(View v) {
                 enrollFromBoard();
             }
         }));
-        root.addView(bigButton("删掉已录的声音", new View.OnClickListener() {
+        root.addView(iconButton(Icons.TRASH, "删掉已录的声音", new View.OnClickListener() {
             @Override public void onClick(View v) {
                 confirmWipe();
+            }
+        }));
+
+        root.addView(group("记录"));
+        root.addView(small("删掉之后找不回来。演示前清场用。"));
+        root.addView(iconButton(Icons.ERASE, "清空今天的记录", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                confirmClear();
             }
         }));
 
@@ -112,12 +143,12 @@ public class SettingsActivity extends Activity {
         root.addView(label("密码"));
         wifiPswd = field(store.wifiPswd(), "8 位以上");
         root.addView(wifiPswd);
-        root.addView(bigButton("发给板子", new View.OnClickListener() {
+        root.addView(iconButton(Icons.WIFI, "发给板子", new View.OnClickListener() {
             @Override public void onClick(View v) {
                 sendWifi();
             }
         }));
-        root.addView(bigButton("让板子重新配网", new View.OnClickListener() {
+        root.addView(iconButton(Icons.CLOUD, "让板子重新配网", new View.OnClickListener() {
             @Override public void onClick(View v) {
                 reprovision();
             }
@@ -147,7 +178,7 @@ public class SettingsActivity extends Activity {
         reply = small(" ");
         root.addView(reply);
 
-        root.addView(bigButton("保存并返回", new View.OnClickListener() {
+        root.addView(iconButton(Icons.CHECK, "保存并返回", new View.OnClickListener() {
             @Override public void onClick(View v) {
                 save();
             }
@@ -155,10 +186,25 @@ public class SettingsActivity extends Activity {
 
         scroll.addView(root);
         setContentView(scroll);
+        applySerif(scroll);
         refreshStatus();
     }
 
     // ────────────────────────── 视图 ──────────────────────────
+
+    /** 和主屏一样：整页统一衬线，层级靠大小与颜色。 */
+    private void applySerif(View v) {
+        if (v instanceof TextView) {
+            ((TextView) v).setTypeface(android.graphics.Typeface.create(
+                    "serif", android.graphics.Typeface.NORMAL));
+        }
+        if (v instanceof ViewGroup) {
+            ViewGroup g = (ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) {
+                applySerif(g.getChildAt(i));
+            }
+        }
+    }
 
     private View titleRow() {
         LinearLayout row = new LinearLayout(this);
@@ -168,16 +214,15 @@ public class SettingsActivity extends Activity {
 
         TextView title = new TextView(this);
         title.setText("设置");
-        title.setTextColor(INK);
-        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        title.setTextColor(Theme.INK);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
+        title.setTypeface(android.graphics.Typeface.create("serif",
+                android.graphics.Typeface.NORMAL));
         row.addView(title, new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView back = new TextView(this);
-        back.setText("返回");
-        back.setTextColor(FAINT);
-        back.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        back.setPadding(dp(10), dp(6), 0, dp(6));
+        IconView back = new IconView(this, Icons.BACK).tint(Theme.FAINT).size(20);
+        back.setPadding(dp(10), dp(6), dp(2), dp(6));
         back.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 save();
@@ -190,28 +235,29 @@ public class SettingsActivity extends Activity {
     private View group(String text) {
         TextView v = new TextView(this);
         v.setText(text);
-        v.setTextColor(FAINT);
-        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        v.setLetterSpacing(0.14f);
-        v.setPadding(0, dp(22), 0, dp(8));
+        v.setTextColor(Theme.MUTED);
+        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        v.setLetterSpacing(0.18f);
+        v.setPadding(0, dp(26), 0, dp(10));
         return v;
     }
 
     private TextView label(String text) {
         TextView v = new TextView(this);
         v.setText(text);
-        v.setTextColor(FAINT);
-        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        v.setPadding(0, dp(10), 0, dp(4));
+        v.setTextColor(Theme.MUTED);
+        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        v.setPadding(0, dp(10), 0, dp(6));
         return v;
     }
 
     private TextView small(String text) {
         TextView v = new TextView(this);
         v.setText(text);
-        v.setTextColor(FAINT);
-        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        v.setPadding(0, dp(4), 0, dp(6));
+        v.setTextColor(Theme.FAINT);
+        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        v.setLineSpacing(dp(3), 1f);
+        v.setPadding(0, dp(4), 0, dp(8));
         return v;
     }
 
@@ -223,17 +269,17 @@ public class SettingsActivity extends Activity {
 
         TextView who = new TextView(this);
         who.setText("每天");
-        who.setTextColor(FAINT);
+        who.setTextColor(Theme.FAINT);
         who.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         row.addView(who);
 
         autoView = new TextView(this);
         autoView.setText(isTime(autoAt) ? autoAt : "关");
-        autoView.setTextColor(INK);
+        autoView.setTextColor(Theme.INK);
         autoView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
         autoView.setGravity(Gravity.CENTER);
-        autoView.setPadding(dp(12), dp(10), dp(12), dp(10));
-        autoView.setBackgroundColor(DIVIDE);
+        autoView.setPadding(dp(12), dp(12), dp(12), dp(12));
+        autoView.setBackground(round(Theme.CARD, 14));
         autoView.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 pickAuto();
@@ -247,10 +293,24 @@ public class SettingsActivity extends Activity {
 
         TextView tail = new TextView(this);
         tail.setText("自动写");
-        tail.setTextColor(FAINT);
+        tail.setTextColor(Theme.FAINT);
         tail.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         row.addView(tail);
         return row;
+    }
+
+    private void confirmClear() {
+        new AlertDialog.Builder(this)
+                .setTitle("清空今天？")
+                .setMessage("今天的原话和三栏判断都会删掉，删了找不回来。")
+                .setNegativeButton("算了", null)
+                .setPositiveButton("清空", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface d, int w) {
+                        store.clearDay(Store.today());
+                        say("今天的记录清空了。");
+                    }
+                })
+                .show();
     }
 
     private static boolean isTime(String s) {
@@ -261,9 +321,9 @@ public class SettingsActivity extends Activity {
         final EditText input = new EditText(this);
         input.setText(isTime(autoAt) ? autoAt : "23:00");
         input.setSingleLine(true);
-        input.setTextColor(INK);
-        input.setHintTextColor(FAINT);
-        input.setBackgroundColor(DIVIDE);
+        input.setTextColor(Theme.INK);
+        input.setHintTextColor(Theme.FAINT);
+        input.setBackgroundColor(Theme.CARD);
         input.setPadding(dp(12), dp(12), dp(12), dp(12));
 
         new AlertDialog.Builder(this)
@@ -322,7 +382,7 @@ public class SettingsActivity extends Activity {
 
         TextView dash = new TextView(this);
         dash.setText("到");
-        dash.setTextColor(FAINT);
+        dash.setTextColor(Theme.FAINT);
         dash.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         dash.setPadding(dp(10), 0, dp(10), 0);
         row.addView(dash);
@@ -335,10 +395,12 @@ public class SettingsActivity extends Activity {
     private TextView timeCell(String value) {
         TextView v = new TextView(this);
         v.setText(value);
-        v.setTextColor(INK);
+        v.setTextColor(Theme.INK);
         v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        v.setTypeface(android.graphics.Typeface.create("serif",
+                android.graphics.Typeface.NORMAL));
         v.setGravity(Gravity.CENTER);
-        v.setBackgroundColor(DIVIDE);
+        v.setBackground(round(Theme.CARD, 14));
         v.setPadding(0, dp(14), 0, dp(14));
         v.setTag(value);
         v.setOnClickListener(new View.OnClickListener() {
@@ -353,13 +415,93 @@ public class SettingsActivity extends Activity {
         EditText e = new EditText(this);
         e.setText(value);
         e.setHint(hint);
-        e.setTextColor(INK);
-        e.setHintTextColor(FAINT);
-        e.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        e.setTextColor(Theme.INK);
+        e.setHintTextColor(Theme.FAINT);
+        e.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
         e.setSingleLine(true);
-        e.setBackgroundColor(DIVIDE);
-        e.setPadding(dp(12), dp(12), dp(12), dp(12));
+        e.setBackground(round(Theme.CARD, 12));
+        e.setPadding(dp(14), dp(14), dp(14), dp(14));
         return e;
+    }
+
+    /** 一行按钮：左边图标，右边短标签。设置页尽量用图形代替长句子。 */
+    private View iconButton(int icon, String text, View.OnClickListener l) {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.HORIZONTAL);
+        box.setGravity(Gravity.CENTER);
+        box.setPadding(dp(16), dp(13), dp(16), dp(13));
+        box.setBackground(round(Theme.CARD, 26));
+
+        box.addView(new IconView(this, icon).tint(Theme.ACCENT).size(18));
+
+        TextView t = new TextView(this);
+        t.setText(text);
+        t.setTextColor(Theme.INK);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        t.setPadding(dp(10), 0, 0, 0);
+        box.addView(t);
+
+        box.setOnClickListener(l);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        p.setMargins(0, dp(5), 0, dp(5));
+        box.setLayoutParams(p);
+        return box;
+    }
+
+    /** 一个开关：深色 ↔ 浅色。点一下就整页换，设置里也只留这一个按钮。 */
+    private View themeRow() {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(16), dp(13), dp(16), dp(13));
+        row.setBackground(round(Theme.CARD, 26));
+
+        boolean dark = Theme.mode == Theme.DARK;
+        row.addView(new IconView(this, dark ? Icons.MOON : Icons.SUN)
+                .tint(Theme.ACCENT).size(18));
+
+        TextView t = new TextView(this);
+        t.setText(dark ? "深色" : "浅色");
+        t.setTextColor(Theme.INK);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        t.setPadding(dp(10), 0, 0, 0);
+        row.addView(t, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        // 右边一个小胶囊：深色时是左边暗，浅色时滑到右边
+        FrameLayout capsule = new FrameLayout(this);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(11));
+        bg.setColor(Theme.mode == Theme.DARK ? Theme.BORDER : Theme.ACCENT);
+        capsule.setBackground(bg);
+        View knob = new View(this);
+        GradientDrawable kg = new GradientDrawable();
+        kg.setShape(GradientDrawable.OVAL);
+        kg.setColor(Theme.mode == Theme.DARK ? Theme.FAINT : Theme.CARD);
+        knob.setBackground(kg);
+        FrameLayout.LayoutParams kp = new FrameLayout.LayoutParams(dp(18), dp(18));
+        kp.gravity = Gravity.CENTER_VERTICAL
+                | (Theme.mode == Theme.DARK ? Gravity.LEFT : Gravity.RIGHT);
+        kp.leftMargin = dp(3);
+        kp.rightMargin = dp(3);
+        capsule.addView(knob, kp);
+        LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(dp(44), dp(24));
+        row.addView(capsule, cp);
+
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                int next = Theme.toggled();
+                Theme.set(next);
+                store.setThemeMode(next);
+                recreate();
+            }
+        });
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        p.setMargins(0, dp(4), 0, dp(6));
+        row.setLayoutParams(p);
+        return row;
     }
 
     private Button bigButton(String text, View.OnClickListener l) {
@@ -367,12 +509,12 @@ public class SettingsActivity extends Activity {
         b.setText(text);
         b.setAllCaps(false);
         b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        b.setTextColor(INK);
-        b.setBackgroundColor(DIVIDE);
+        b.setTextColor(Theme.INK);
+        b.setBackground(round(Theme.CARD, 26));
         b.setOnClickListener(l);
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p.setMargins(0, dp(6), 0, dp(6));
+        p.setMargins(0, dp(5), 0, dp(5));
         b.setLayoutParams(p);
         return b;
     }
@@ -385,9 +527,9 @@ public class SettingsActivity extends Activity {
         input.setText(String.valueOf(cell.getText()));
         input.setHint("比如 22:30");
         input.setSingleLine(true);
-        input.setTextColor(INK);
-        input.setHintTextColor(FAINT);
-        input.setBackgroundColor(DIVIDE);
+        input.setTextColor(Theme.INK);
+        input.setHintTextColor(Theme.FAINT);
+        input.setBackgroundColor(Theme.CARD);
         input.setPadding(dp(12), dp(12), dp(12), dp(12));
 
         new AlertDialog.Builder(this)
