@@ -19,6 +19,8 @@ SKIRT_CLR = 0.20        # 裙边与台阶的单边间隙
 DETENT_H = 0.35         # 卡点凸起高度（干涉量 0.15）
 DETENT_Z = SPLIT_Z - 3.2
 
+HAS_SPEAKER = False      # 本方案不装喇叭：没有前腔、没有出声孔
+
 FACE_RECESS = 0.9       # 前脸整体内凹（凸边 = 像素描边）
 FACE_RIM = 4.0          # 前脸留边宽度（相对原始轮廓）
 EYE_POCKET = 1.9        # 眼窝深度（从 Z=0 起）

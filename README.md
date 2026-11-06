@@ -196,7 +196,7 @@ diting/
 │       └── DayView.java          旧的两栏画布（已不挂到主屏）
 ├── cloud/                 云端：VAD + 声纹 + 识别（sherpa-onnx）
 ├── firmware/              预编译烧录包（源码待并）
-├── hardware/shell/        外壳参数化建模（out/ 里的 STL/STEP 可再生成，不入库）
+├── hardware/shell/        外壳参数化建模，见 hardware/shell/README.md（STL/STEP 可再生成，不入库）
 ├── schema/                早期记录格式与示例
 ├── prompts/               重写提示词原文与实验笔记
 ├── docs/                  设计、硬件、演示、问答、截图

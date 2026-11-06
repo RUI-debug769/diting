@@ -19,7 +19,7 @@ for _f in ("/home/murdo_klein/.local/share/fonts/NotoSansSC-Regular.otf",
 plt.rcParams["font.family"] = ["Noto Sans SC", "DejaVu Sans"]
 plt.rcParams["axes.unicode_minus"] = False
 
-from build123d import Pos, Rot, Cylinder, Align
+from build123d import Pos, Rot, Cylinder, Align, Axis
 
 import params as K
 import model as M
@@ -125,13 +125,15 @@ def main():
 
     print("fig4 exploded")
     dz = [("back", 96.0), ("bat", 64.0), ("board", 30.0)]
-    ex = [Part(b.moved(Pos(0, 0, 96.0)), BACKC)]
+    ex = [Part(b.moved(Pos(0, 0, 150.0)), BACKC)]
     ex.append(Part(Cylinder(K.BAT_D / 2, K.BAT_L).moved(
-        Pos(K.BAT_CX, K.BAT_CY, K.BAT_CZ + 64.0)), BAT))
-    for bp in board_proxy():
-        ex.append(Part(bp.moved(Pos(0, 0, 30.0)), PCB))
+        Pos(0, K.BAT_CY, K.BAT_CZ + 100.0)).rotate(Axis.Y, 90), BAT))
+    bp_list = board_proxy()
+    if bp_list:
+        for bp in bp_list:
+            ex.append(Part(bp.moved(Pos(0, 0, 52.0)), PCB))
     ex += [Part(f, BODY), Part(h, HORN)] + eyes + btns
-    render(ex, R_iso, "fig4_exploded.png", "图4 爆炸图：后盖 / 18650 / 主板 / 前壳", figsize=(8.4, 8.4))
+    render(ex, rot_xyz(np.radians(-46), 0, np.radians(-14)), "fig4_exploded.png", "图4 爆炸图：后盖 / 18650 / 主板 / 前壳", figsize=(8.4, 8.4))
 
 if __name__ == "__main__":
     main()
