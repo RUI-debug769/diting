@@ -1,0 +1,9 @@
+谛听 (Diting)
+Copyright 2026 RUI-debug769
+
+This product includes software developed by the Diting project
+(https://github.com/RUI-debug769/diting).
+
+The Android application uses the system SpeechRecognizer and an
+OpenAI-compatible /chat/completions endpoint; no third-party model
+weights are vendored in this repository.

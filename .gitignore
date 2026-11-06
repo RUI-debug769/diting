@@ -1,0 +1,43 @@
+# ── 构建产物 ─────────────────────────────────────────────
+android/build/
+android/.gradle/
+*.apk
+*.aab
+*.apk.idsig
+*.class
+*.dex
+
+# ── 签名与本地环境 ───────────────────────────────────────
+*.keystore
+*.jks
+android/local.properties
+
+# ── Python ──────────────────────────────────────────────
+cloud/.venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+cloud/data/
+
+# ── 模型权重（下载方式见 cloud/models/README.md）────────
+*.onnx
+
+# ── 内部资料（不对外）───────────────────────────────────
+docs/BP-内部参考.md
+docs/BP-内部参考.pdf
+docs/商业画布.md
+refs/
+
+# ── 旧构建产物 ──────────────────────────────────────────
+firmware/diting_QIO_0.1.0_1105_2100.bin
+
+# ── 编辑器与系统 ────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ── 个人文件（不公开）───────────────────────────────────
+out/只属于我的极简-审美与品味.pdf
+cloud/models/*.wav

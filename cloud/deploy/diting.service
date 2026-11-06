@@ -1,0 +1,22 @@
+[Unit]
+Description=Diting cloud: board PCM -> VAD -> voiceprint -> ASR -> app
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/diting
+Environment=DITING_THREADS=2
+# 1.7G 内存的机器，别让 ASR 把整台机器吃光
+MemoryMax=1200M
+ExecStart=/usr/bin/python3 /opt/diting/diting_cloud.py \
+    --models /opt/diting/models \
+    --voiceprints /opt/diting/data/voiceprints.json \
+    --board-port 19001 --app-port 19002 --threads 2
+Restart=always
+RestartSec=3
+StandardOutput=append:/var/log/diting.log
+StandardError=append:/var/log/diting.log
+
+[Install]
+WantedBy=multi-user.target
