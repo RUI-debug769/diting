@@ -94,7 +94,9 @@ class Models:
                     tokens=str(tokens),
                     num_threads=threads,
                     use_itn=True,
-                    language="zh",
+                    # auto：SenseVoice 自己判定语种。写死 "zh" 时英文会被按中文
+                    # 音素解码，英文句子会碎成汉字或直接空。
+                    language="auto",
                 )
             else:
                 log.warning("ASR 模型不在 %s，先只跑 VAD+声纹", model_dir)
@@ -181,12 +183,17 @@ class Voiceprints:
         self.vectors.clear()
         self._save()
 
-    def judge(self, embedding: list[float]) -> tuple[str, float]:
-        """返回 (说话人, 相似度)。没注册过就返回 ("unregistered", 0)。"""
+    def judge(self, embedding: list[float], extra: float = 0.0) -> tuple[str, float]:
+        """返回 (说话人, 相似度)。没注册过就返回 ("unregistered", 0)。
+
+        extra 是临时加严量：一秒以内的短句提取出的向量不稳，同人分数会掉、
+        异人也可能偶然冒高，所以短句按更高一点的阈值判。
+        """
         if not self.enrolled:
             return "unregistered", 0.0
         score = self.score(embedding)
-        return (self.OWNER if score >= self.threshold else "other"), score
+        need = min(0.99, self.threshold + extra)
+        return (self.OWNER if score >= need else "other"), score
 
 
 # ---------------------------------------------------------------- 管线
@@ -200,6 +207,7 @@ class Event:
     text: str
     duration: float
     accepted: bool
+    lang: str = ""
 
     def to_json(self) -> str:
         return json.dumps(
@@ -211,6 +219,7 @@ class Event:
                 "text": self.text,
                 "duration": round(self.duration, 2),
                 "accepted": self.accepted,
+                "lang": self.lang,
             },
             ensure_ascii=False,
         )
@@ -223,6 +232,7 @@ class Pipeline:
         self.models = models
         self.prints = prints
         self._lock = asyncio.Lock()
+        self._asr_lang = ""
 
     # SenseVoice 会给每段打一个事件标签：<|Speech|> 是人在说话，
     # <|BGM|> / <|Applause|> / <|Laughter|> 这些是音乐、掌声、笑声。
@@ -246,13 +256,17 @@ class Pipeline:
         self.models.asr.decode_stream(stream)
         result = stream.result
         self._asr_event = getattr(result, "event", "") or ""
+        self._asr_lang = (getattr(result, "lang", "") or "").strip("<>|")
         return result.text.strip()
 
     def process(self, samples: np.ndarray) -> Event:
         duration = len(samples) / SAMPLE_RATE
         embedding = self._embed(samples)
-        speaker, score = self.prints.judge(embedding)
+        # 一秒以内的句子声纹不可靠：同人常掉到 0.3 出头，异人也可能碰巧冒高。
+        short = duration < 1.2
+        speaker, score = self.prints.judge(embedding, extra=0.06 if short else 0.0)
         self._asr_event = ""
+        self._asr_lang = ""
         text = self._asr(samples) if speaker != "other" else ""
         noise = self._asr_event.strip("<>|") in self.NOISE_EVENTS
         if noise:
@@ -265,6 +279,7 @@ class Pipeline:
             text=text,
             duration=duration,
             accepted=(speaker == self.prints.OWNER) and not noise,
+            lang=self._asr_lang,
         )
 
     async def process_async(self, samples: np.ndarray) -> Event:
