@@ -1,5 +1,9 @@
 # 谛听
 
+[![Android CI](https://github.com/RUI-debug769/diting/actions/workflows/android-build.yml/badge.svg)](https://github.com/RUI-debug769/diting/actions/workflows/android-build.yml)
+[![Release](https://img.shields.io/github/v/release/RUI-debug769/diting)](https://github.com/RUI-debug769/diting/releases/latest)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+
 一个只听你的记言器。
 
 一块没有屏幕的挂坠挂在身上。它听得见周围所有人，但只把你自己的话记进你的账本。一天结束，它把这一天压成三栏：**事实、待办、需你留意**。原文一个字不改，收在下面，七天后自动清掉。
@@ -9,6 +13,16 @@
 | 主屏 | 设置 |
 | --- | --- |
 | ![主屏](docs/screens/main-summary.png) | ![设置](docs/screens/settings.png) |
+
+## 装到手机上
+
+不想自己编译，直接拿现成的包：[Releases](https://github.com/RUI-debug769/diting/releases/latest) → `diting.apk`（v0.1，`com.diting.app`，`minSdk 26` / `targetSdk 34`，约 215 KB）。
+
+1. 在手机上允许「安装未知来源应用」。
+2. 装好打开，进设置页填云端地址（默认 `112.124.111.67:19002`）和 DeepSeek 的 Key。
+3. 小米 / 红米报 `INSTALL_FAILED_USER_RESTRICTED` 时，改用 `adb install -r -i com.android.vending diting.apk`。
+
+三点说明：包是 `debug.keystore` 签的（私钥不入库，CI 每次现生成），只适合装在自己机器上试用，正式分发给别人要换 release 签名；APK 不是提交进仓库的，由 GitHub Actions 跑 `android/build_apk.sh` 出包并挂到 Release；每次出包都会校验签名和版本号。
 
 ## 它不是什么
 
@@ -59,6 +73,8 @@ flowchart LR
 - 要跑全链路：T5AI-CORE 板子、能烧录的电脑、TuyaOpen、一台跑 `cloud/` 的服务器。
 
 ### A. 只跑 App（没有板子也能看界面）
+
+Release 里已经有包的话，这一节可以跳过；下面是从源码出包。
 
 ```bash
 git clone https://github.com/RUI-debug769/diting.git
@@ -164,6 +180,7 @@ diting/
 ├── README.md              你在这里
 ├── LICENSE                Apache-2.0
 ├── NOTICE
+├── .github/workflows/     CI：跑 build_apk.sh 出包，tag 时发 Release
 ├── android/               安卓 App（Java，不依赖 AndroidX 的出包脚本）
 │   ├── build_apk.sh
 │   ├── gradle             脚手架（这一版没用来出包）
@@ -179,6 +196,7 @@ diting/
 │       └── DayView.java          旧的两栏画布（已不挂到主屏）
 ├── cloud/                 云端：VAD + 声纹 + 识别（sherpa-onnx）
 ├── firmware/              预编译烧录包（源码待并）
+├── hardware/shell/        外壳参数化建模（out/ 里的 STL/STEP 可再生成，不入库）
 ├── schema/                早期记录格式与示例
 ├── prompts/               重写提示词原文与实验笔记
 ├── docs/                  设计、硬件、演示、问答、截图
