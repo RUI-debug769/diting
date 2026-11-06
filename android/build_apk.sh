@@ -9,13 +9,23 @@ PATH="$JAVA_HOME/bin:$BT:$PATH"
 OUT=build
 rm -rf "$OUT"; mkdir -p "$OUT/classes" "$OUT/dex"
 
-echo "[1/6] aapt2 link"
+echo "[1/7] aapt2 compile（只编译图标资源）"
+# 全量编译 res/ 会在 themes.xml 上翻车：Theme.Material3.DayNight.NoActionBar 来自
+# Material 库，而这个脚本不引 AAR。所以只把图标相关的文件编成 .flat，其它 res 不进包。
+RES=app/src/main/res
+rm -rf "$OUT/res"; mkdir -p "$OUT/res"
+find "$RES" -type f \( -path '*/mipmap-*/*' -o -name 'ic_launcher_colors.xml' \) -print0 |
+  while IFS= read -r -d '' f; do aapt2 compile -o "$OUT/res" "$f"; done
+
+echo "[2/7] aapt2 link"
+mapfile -t FLATS < <(find "$OUT/res" -name '*.flat' | sort)
 aapt2 link -o "$OUT/base.apk" -I "$AJ" \
   --manifest app/src/main/AndroidManifest.xml \
+  "${FLATS[@]}" \
   --min-sdk-version 26 --target-sdk-version 34 \
   --version-code 1 --version-name 0.1
 
-echo "[2/6] javac"
+echo "[3/7] javac"
 find app/src/main/java -name '*.java' > "$OUT/srcs.txt"
 javac -encoding UTF-8 -source 8 -target 8 -nowarn \
   -bootclasspath "$AJ" -classpath "$AJ" \
@@ -26,11 +36,11 @@ if grep -q ' error: ' "$OUT/javac.log"; then
   exit 1
 fi
 
-echo "[3/6] d8"
+echo "[4/7] d8"
 find "$OUT/classes" -name '*.class' > "$OUT/classes.txt"
 d8 --lib "$AJ" --min-api 26 --output "$OUT/dex" @"$OUT/classes.txt"
 
-echo "[4/6] 打包 dex"
+echo "[5/7] 打包 dex"
 python3 - "$OUT/base.apk" "$OUT/dex/classes.dex" "$OUT/unsigned.apk" <<'PYEOF'
 import sys, zipfile, shutil
 src, dex, dst = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -40,10 +50,10 @@ with zipfile.ZipFile(dst, "a", zipfile.ZIP_DEFLATED) as z:
 print("   dex 已打入")
 PYEOF
 
-echo "[5/6] zipalign"
+echo "[6/7] zipalign"
 zipalign -f 4 "$OUT/unsigned.apk" "$OUT/aligned.apk"
 
-echo "[6/6] 签名"
+echo "[7/7] 签名"
 KS="debug.keystore"
 if [ ! -f "$KS" ]; then
   keytool -genkeypair -v -keystore "$KS" -storepass android -keypass android \

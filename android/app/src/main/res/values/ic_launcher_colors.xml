@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 图标纸底。图标专用，不动 values/colors.xml 里的界面配色。 -->
+    <color name="ic_launcher_background">#F4EFE6</color>
+</resources>
