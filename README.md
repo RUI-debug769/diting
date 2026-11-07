@@ -110,7 +110,7 @@ adb install -r -i com.android.vending build/diting.apk
 
 ### C. 只看提示词
 
-三栏的全部来源是 `android/app/src/main/java/com/diting/app/Lm.java` 里的 `SUMMARY_SYSTEM` 常量。把它和一条记录拼起来，贴给任何一个对话模型，你能看到它是怎么判断的，也包括它判断错的时候。「写」的提示词在同文件的 `ARTICLE_SYSTEM`，原文与参数见 [prompts/article.md](prompts/article.md)。
+三栏的全部来源是 `android/app/src/main/java/com/diting/app/Lm.java` 里的 `SUMMARY_SYSTEM` 常量。把它和一条记录拼起来，贴给任何一个对话模型，你能看到它是怎么判断的，也包括它判断错的时候。「写」的提示词在同文件的 `ARTICLE_SYSTEM`，原文与参数见 [prompts/article.md](prompts/article.md)。送模型前去掉口水词的规则在同目录的 `Clean.java`，固定样例自测跑 `./check_clean.sh`。
 
 ## 一条记录长什么样
 
@@ -144,6 +144,8 @@ adb install -r -i com.android.vending build/diting.apk
 - 不存音频。任何字段里都不许出现音频路径、base64、二进制。
 - `mine` 不做清洗。要修错字就另开字段，不要覆盖它。
 - 七天前的天整份删掉，`summary` 一起删。
+
+原话落盘不动；只在拼给模型前，内存里派生一份去掉口水词的副本（嗯、呃、那个那个、就是说……），`mine` 本身一个字不改。
 
 `schema/record.md` 是更早的一版逐条 JSONL 设计（给导出用的），App 现在按天存，字段含义不变。
 
@@ -184,11 +186,13 @@ adb install -r -i com.android.vending build/diting.apk
 
 **九、「写」的短篇质量看素材和模型。** 字数区间由去重后的素材量算出来，但模型有时仍会写超 10–20%；素材少的时候也可能把一篇写薄，或者把同一件事翻来覆去讲。提示词禁止新增人物、对话、器物，仍偶尔会把「音频／调试」漂移成具体道具（匣子、红线）——重写一次通常会变。我们没有做逐篇人工校订，也没有评测过「像不像小说」。自动写要跑几分钟，前台服务会常驻一条通知，耗电比只写三栏高；模型卡住时最多等 5 分钟，然后走兜底。
 
+**十、口水词清洗靠保守词表，不是模型。** 只删有把握的（嗯、呃、那个那个、就是说……）；句中孤立的「啊」、方言语气词、转写把语气词写成拼音的情况仍可能漏进三栏或文章。没有做过漏删率评测，能确认的只是 `android/check_clean.sh` 里的固定样例。宁可漏删，也不误删「金额」这类词。
+
 ## 隐私
 
 **存了什么。** 手机上只有文字：每天的原话、三栏判断、「那一篇」的正文，以及「有没有被否定」的标记。七天。
 
-**发出去了什么。** 两段：一是板子推给云端的原始 PCM（切句、认人、转字用，内存里处理完就丢，不写盘）；二是点「让它写」或点开某一天写文章时，手机把当天原话文本发给 DeepSeek（三栏和文章是两次独立请求，发的是同一批文字）。请求里没有音频、没有通讯录、没有位置、没有设备号。
+**发出去了什么。** 两段：一是板子推给云端的原始 PCM（切句、认人、转字用，内存里处理完就丢，不写盘）；二是点「让它写」或点开某一天写文章时，手机把当天原话文本（内存里去掉口水词后的副本）发给 DeepSeek（三栏和文章是两次独立请求，发的是同一批文字）。请求里没有音频、没有通讯录、没有位置、没有设备号。
 
 **没控制住的。** 两条。一是云端那一跳：PCM 走公网明文 TCP 到 `112.124.111.67`，链路上能抓包的人能听到原始声音——我们没有做传输加密。二是密钥：DeepSeek 的 Key 明文存在 App 私有目录里，手机被 root 或被拿走就不安全。
 
@@ -206,9 +210,12 @@ diting/
 ├── .github/workflows/     CI：跑 build_apk.sh 出包，tag 时发 Release
 ├── android/               安卓 App（Java，不依赖 AndroidX 的出包脚本）
 │   ├── build_apk.sh
+│   ├── check_clean.sh     口水词清洗自测：只编译 Clean + CleanCheck
 │   ├── gradle             脚手架（这一版没用来出包）
+│   ├── test/java/com/diting/app/CleanCheck.java   清洗固定样例（不进 APK）
 │   └── app/src/main/java/com/diting/app/
 │       ├── MainActivity.java     主屏：三栏卡片 + 折叠原话 + 写入口
+│       ├── Clean.java            送模型前去掉口水词（原话不动）
 │       ├── ArticleActivity.java  「那一篇」阅读页：80ms/字、短篇排版、重写
 │       ├── SettingsActivity.java 时段、声纹、记录、WiFi、云端与模型
 │       ├── Store.java            按天存档（events + summary + article），七天清理

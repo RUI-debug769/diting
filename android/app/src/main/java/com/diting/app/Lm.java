@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
@@ -49,7 +50,8 @@ public class Lm {
           + "2. 必须抓住原话里的具体细节（某个数字、某个词、某句反复出现的话），不许把事件总结成抽象结论。\n"
           + "3. 不确定就说不确定；不许替这个人的感受下判断。\n"
           + "4. 每条只说一到两句，短。语气克制，像一个听了很多年的人。\n"
-          + "5. 只输出 JSON 数组，形如 [{\"i\":0,\"say\":\"...\"}]，i 是事件编号。不要输出任何别的文字。";
+          + "5. 原话是录音转写，会带口水词（嗯、呃、啊、哦、那个那个、就是说、怎么说呢、你知道吗、对吧 等）。这些是噪声：写的时候不要抄进句子；原话里有信息量的词照旧要用。\n"
+          + "6. 只输出 JSON 数组，形如 [{\"i\":0,\"say\":\"...\"}]，i 是事件编号。不要输出任何别的文字。";
 
     public void rewrite(final String endpoint, final String apiKey, final String model,
                         final List<String> events, final Callback cb) {
@@ -95,8 +97,18 @@ public class Lm {
     private String buildBody(String model, List<String> events) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("今天说过的话，按事件分组：\n");
+        int kept = 0;
         for (int i = 0; i < events.size(); i++) {
-            sb.append(i).append(". ").append(events.get(i)).append("\n");
+            // 原话照旧落盘；这里只把去掉口水词的副本交给模型，事件编号保持不变。
+            String t = Clean.clean(events.get(i));
+            if (t.isEmpty()) {
+                continue;
+            }
+            sb.append(i).append(". ").append(t).append("\n");
+            kept++;
+        }
+        if (kept == 0) {
+            sb.append("0. （今天只有语气词，没有一句完整的话）\n");
         }
         sb.append("\n为每一条写一句话。");
 
@@ -235,16 +247,21 @@ public class Lm {
             if (!end) {
                 cur.append(ch);
             } else {
-                if (cur.length() > best.length() && cur.length() <= 14) {
-                    best = cur.toString();
-                }
+                best = betterDetail(best, cur.toString());
                 cur.setLength(0);
             }
         }
-        if (cur.length() > best.length() && cur.length() <= 14) {
-            best = cur.toString();
-        }
+        best = betterDetail(best, cur.toString());
         return best;
+    }
+
+    /** 兜底挑句：先去掉口水词，再跳过「然后」「那个」这类不成句的片段。 */
+    private String betterDetail(String best, String raw) {
+        String c = Clean.clean(raw);
+        if (c.length() > 14 || Clean.isNoise(c)) {
+            return best;
+        }
+        return c.length() > best.length() ? c : best;
     }
 
     private static String cut(String s, int n) {
@@ -275,11 +292,12 @@ public class Lm {
           + "   已经做完的不要写；同一件事不要在这里和 watch 里各写一遍。\n"
           + "3. watch：只写这四类——前后说法矛盾、答应了别人的事、临时改口、反复提到却没行动；最多 2 条，\n"
           + "   每条都要说清「哪里不对」，不要写没有下文的观察。没有就给 []。\n"
-          + "4. 每条不超过 24 个字，尽量用他的原话里的词，不许编造。\n"
+          + "4. 每条不超过 24 个字，尽量用他原话里有信息量的词，不许编造；原话里的口水词不要写进三栏。\n"
           + "5. 同一件事只写一条。几句话说的是同一件（比如都在讲「加音频」），就合成一句，把时间、对象、条件并进去；\n"
           + "   不要一件事写三条。宁可少一条，也不要让他看见三行同一个意思。\n"
           + "6. 宁少勿多：一条要顶用，胜过凑三条。不确定就别写，空数组比硬凑好。\n"
-          + "7. 只输出 JSON，不要解释，不要 markdown 代码块。";
+          + "7. 原话是录音转写，会带口水词（嗯、呃、啊、哦、那个那个、就是说、怎么说呢、你知道吗、对吧 等）。这些是噪声：不要写进三栏；但别把原话里有信息量的词一起删掉。\n"
+          + "8. 只输出 JSON，不要解释，不要 markdown 代码块。";
 
     public void summarize(final String endpoint, final String apiKey, final String model,
                           final List<String> lines, final SummaryCallback cb) {
@@ -329,8 +347,17 @@ public class Lm {
     private String buildSummaryBody(String model, List<String> lines, boolean stream) throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("今天说过的话，按时间顺序：\n");
+        int kept = 0;
         for (int i = 0; i < lines.size(); i++) {
-            sb.append(i + 1).append(". ").append(lines.get(i)).append("\n");
+            // 只把去掉口水词的副本交给模型；原始记录不动。
+            String t = Clean.clean(lines.get(i));
+            if (t.isEmpty()) {
+                continue;
+            }
+            sb.append(++kept).append(". ").append(t).append("\n");
+        }
+        if (kept == 0) {
+            sb.append("1. （今天只有语气词，没有一句完整的话）\n");
         }
         sb.append("\n按规则整理成三栏 JSON。");
 
@@ -593,7 +620,8 @@ public class Lm {
             }
         }
         for (int i = 0; i < lines.size() && s.todos.size() < 3; i++) {
-            String l = lines.get(i);
+            // 兜底也读清洗后的副本，别把「然后……然后……」抄进待办。
+            String l = Clean.clean(lines.get(i));
             if (l.matches(".*(要|得|明天|后天|记得|提醒|开会|约|交|发|买|做|去).*")) {
                 String d = pickDetail(l);
                 if (!d.isEmpty()) {
@@ -602,7 +630,7 @@ public class Lm {
             }
         }
         for (int i = 0; i < lines.size() && s.watch.size() < 2; i++) {
-            if (lines.get(i).contains("被否认过")) {
+            if (Clean.clean(lines.get(i)).contains("被否认过")) {
                 s.watch.add("有一句你否认过，可以再看一眼");
                 break;
             }
@@ -626,9 +654,9 @@ public class Lm {
             + "2. 这是短篇小说，不是网文连载、不是日记、不是总结。一篇讲完一件事，有开头、有转折、有结尾；句子短，留白多，不解释道理。\n"
             + "3. 叙事要抓人，像信息流一样：开头三句之内给一个钩子（一句没头没尾的原话、一个声音、一个动作的中途）；之后每 300–500 字给一个新信息、小转折或情绪落点；结尾留一个回响，或轻轻反转。\n"
             + "4. 底色是聊斋式的志怪。这一篇的叙事手法由用户消息指定，只按指定的那一种写。\n"
-            + "5. 情节只能来自这一天原话里出现过的人、事、物；不许新增人物、对话或事件，也不许让人物拿起、使用、面对原话里没有的器物（原话说「音频」，就写音频或声音，不要写铜匣子、铜丝、方匣子）。灯、窗、风这类环境可以写，但不能变成推动情节的道具。引语只许用原话，可以删，不可以改写。不替他下结论，不说教。\n"
+            + "5. 情节只能来自这一天原话里出现过的人、事、物；不许新增人物、对话或事件，也不许让人物拿起、使用、面对原话里没有的器物（原话说「音频」，就写音频或声音，不要写铜匣子、铜丝、方匣子）。灯、窗、风这类环境可以写，但不能变成推动情节的道具。引语只许用原话，可以删，不可以改写；原话里的口水词（嗯、呃、啊、哦、那个那个、就是说、怎么说呢、你知道吗、对吧 等）不算内容，引的时候直接删掉，不要搬进正文。不替他下结论，不说教。\n"
             + "6. 字数按素材定：用户消息里给出目标区间，区间上限是硬上限；写完后自己数一遍汉字，超了就删到区间内，宁可写下限附近，也不要超过上限。不要为凑字加情节。\n"
-            + "7. 语音识别常把一句话重复十几遍，或把语气词记成拼音（例如「留留留ge」）。这些是噪声：按上下文把意思理顺再写，不要把重复字、拼音原样搬进篇名或正文引语。\n"
+            + "7. 语音识别常把一句话重复十几遍，或把语气词记成拼音（例如「留留留ge」），也会把「嗯、呃、啊、哦、那个那个、就是说、怎么说呢、你知道吗、对吧」这类口水词原样记下来。这些都是噪声：按上下文把意思理顺再写，不要把重复字、拼音或口水词原样搬进篇名或正文引语。\n"
             + "8. 篇名要像短篇小说的题目：二到八个汉字，干净，不要用噪声词。\n"
             + "9. 只输出正文，不分章。不要解释、不要 Markdown、不要代码块。\n"
             + "\n"
@@ -737,7 +765,9 @@ public class Lm {
 
     private String buildArticleBody(String model, List<String> lines, boolean stream) throws Exception {
         // 去重后的素材量：重复的原话不算篇幅，免得把噪声当成长度。
+        // 同时攒一份去掉口水词的干净副本——模型照它写，原话不动。
         Set<String> seen = new LinkedHashSet<String>();
+        List<String> cleanLines = new ArrayList<String>();
         int material = 0;
         for (int i = 0; i < lines.size(); i++) {
             String s = lines.get(i);
@@ -748,7 +778,12 @@ public class Lm {
             if (t.isEmpty() || !seen.add(t)) {
                 continue;
             }
-            material += t.length();
+            String c = Clean.clean(t);
+            if (c.isEmpty()) {
+                continue;
+            }
+            cleanLines.add(c);
+            material += c.length();
         }
         int lo;
         int hi;
@@ -787,8 +822,11 @@ public class Lm {
 
         StringBuilder sb = new StringBuilder();
         sb.append("这一天说过的话，按时间顺序：\n");
-        for (int i = 0; i < lines.size(); i++) {
-            sb.append(i + 1).append(". ").append(lines.get(i)).append("\n");
+        for (int i = 0; i < cleanLines.size(); i++) {
+            sb.append(i + 1).append(". ").append(cleanLines.get(i)).append("\n");
+        }
+        if (cleanLines.isEmpty()) {
+            sb.append("1. （今天只有语气词，没有一句完整的话）\n");
         }
         sb.append("\n这次的写法：\n");
         sb.append("- 开头：").append(hook).append("\n");
