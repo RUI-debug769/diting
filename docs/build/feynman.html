@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>谛听 · 答辩与设计对接手册</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 15mm 15mm; }
+  :root{
+    --paper:#FBF6EC; --paper2:#F4EBDC; --ink:#2A241C; --muted:#6D6151;
+    --faint:#9B8D78; --accent:#B4472F; --accent2:#8C3322;
+    --wash:#EFE3D2; --line:#D8C9B2; --card:#F8F1E3;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{font-family:"SimSun","Songti SC",serif;font-size:9.3pt;line-height:1.485;}
+  h1,h2,h3,h4,.sans{font-family:"Noto Sans SC","Hei",sans-serif;}
+  p{margin:0 0 5.5px;text-align:justify;}
+  a{color:var(--accent2);text-decoration:none;}
+  .cover{height:258mm;display:flex;flex-direction:column;justify-content:space-between;
+    padding:6mm 2mm 2mm;break-after:page;}
+  .brand{font-family:"Noto Sans SC",sans-serif;font-size:9pt;letter-spacing:.42em;color:var(--accent);}
+  .cover h1{font-size:40pt;line-height:1.18;margin:16mm 0 4mm;font-weight:700;letter-spacing:.02em;}
+  .cover .sub{font-size:15pt;color:var(--muted);margin:0 0 3mm;}
+  .cover .claim{font-size:11pt;line-height:1.9;max-width:125mm;color:var(--ink);}
+  .cover .rule{height:1px;background:var(--ink);opacity:.5;margin:8mm 0 4mm;}
+  .cover .meta{font-family:"Noto Sans SC",sans-serif;font-size:9pt;color:var(--muted);line-height:2;}
+  .cover .seal{width:15mm;height:15mm;border:1.2pt solid var(--accent);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-size:18pt;font-family:"SimSun",serif;
+    margin-top:7mm;transform:rotate(-2deg);}
+  .part{}
+  .major{break-before:page;}
+  .kicker{font-family:"Noto Sans SC",sans-serif;font-size:8.4pt;letter-spacing:.22em;color:var(--accent);margin:0 0 2mm;}
+  h2{font-size:18pt;line-height:1.3;margin:0 0 2mm;font-weight:700;}
+  h2 .num{color:var(--faint);font-weight:400;margin-right:3mm;}
+  .lead{font-size:10.6pt;color:var(--muted);margin:0 0 5mm;}
+  h3{font-size:11.8pt;margin:4.2mm 0 1.4mm;font-weight:700;}
+  h4{font-size:10.6pt;margin:4mm 0 1.2mm;font-weight:700;}
+  .hr{height:1px;background:var(--line);margin:4mm 0;}
+  .say{background:var(--wash);border-left:2.2pt solid var(--accent);padding:3.2mm 4.5mm;margin:3.6mm 0;
+    break-inside:avoid;}
+  .say b{font-family:"Noto Sans SC",sans-serif;font-size:8.4pt;letter-spacing:.18em;color:var(--accent);display:block;margin-bottom:1.5mm;}
+  .say p{margin:0;font-size:10pt;}
+  .note{border:1px solid var(--line);background:var(--card);padding:3mm 4mm;margin:3mm 0;break-inside:avoid;}
+  .note p{margin:0 0 4px;}
+  .note p:last-child{margin:0;}
+  .warn{border-left:2.2pt solid var(--accent2);background:#F6E7DE;padding:3.5mm 4.5mm;margin:4mm 0;break-inside:avoid;}
+  thead{display:table-header-group;}
+  table{width:100%;border-collapse:collapse;margin:2mm 0 3mm;font-size:8.2pt;line-height:1.38;}
+  th{background:var(--wash);font-family:"Noto Sans SC",sans-serif;font-weight:700;font-size:8pt;
+    letter-spacing:.04em;text-align:left;padding:2mm 2mm;border-bottom:1px solid var(--line);}
+  td{padding:1.45mm 1.7mm;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr{break-inside:avoid;}
+  td.k{font-family:"Noto Sans SC",sans-serif;font-weight:700;white-space:nowrap;}
+  .cols{display:flex;gap:6mm;margin:3mm 0;}
+  .col{flex:1;min-width:0;}
+  .cols3{display:flex;gap:4mm;margin:3mm 0;}
+  .cols3 > div{flex:1;min-width:0;}
+  .box{border-top:2pt solid var(--ink);padding-top:2.5mm;}
+  .box h4{margin-top:0;}
+  .small{font-size:8.6pt;color:var(--muted);line-height:1.55;}
+  .tiny{font-size:7.9pt;color:var(--faint);line-height:1.5;}
+  .tag{display:inline-block;font-family:"Noto Sans SC",sans-serif;font-size:7.6pt;letter-spacing:.08em;
+    color:var(--accent2);border:1px solid var(--accent);padding:0.4mm 1.6mm;margin-right:1.5mm;}
+  .qa{break-inside:avoid;margin:0 0 2mm;}
+  .q{font-family:"Noto Sans SC",sans-serif;font-weight:700;font-size:9.6pt;line-height:1.45;}
+  .q .n{color:var(--accent);margin-right:1.5mm;}
+  .a{margin:0.8mm 0 0;}
+  .follow{font-size:8.5pt;color:var(--muted);margin-top:0.6mm;}
+  .follow b{font-family:"Noto Sans SC",sans-serif;font-size:7.8pt;letter-spacing:.06em;color:var(--faint);}
+  ul,ol{margin:1mm 0 4mm;padding-left:5mm;}
+  li{margin:0 0 1.2mm;}
+  .tight li{margin:0 0 0.5mm;}
+  .imgrow{display:flex;gap:4mm;align-items:flex-end;margin:3mm 0;}
+  .imgrow figure{margin:0;flex:1;}
+  .imgrow img{width:100%;display:block;border:1px solid var(--line);background:#fff;}
+  figcaption{font-size:7.8pt;color:var(--faint);margin-top:1mm;line-height:1.4;}
+  .sw{display:inline-block;width:3.2mm;height:3.2mm;border:1px solid rgba(0,0,0,.18);
+    vertical-align:-0.4mm;margin-right:1.2mm;}
+  .toc{columns:2;column-gap:10mm;font-size:9.2pt;line-height:2.05;margin-top:3mm;}
+  .toc div{break-inside:avoid;}
+  .toc .n{color:var(--accent);display:inline-block;width:7mm;}
+  .flow{width:100%;margin:3mm 0 2mm;}
+  .flow text{font-family:"Noto Sans SC",sans-serif;}
+  .big{font-size:14pt;line-height:1.55;}
+  .center{text-align:center;}
+  .pagebreak{break-before:page;}
+  .avoid{break-inside:avoid;}
+</style>
+</head>
+<body>
+
+<!-- ============ 封面 ============ -->
+<section class="cover">
+  <div>
+    <div class="brand">谛 听 · D I T I N G</div>
+    <h1>答辩与设计<br>对接手册</h1>
+    <p class="sub">从「记」到「写」：一个只听你的记言器</p>
+    <div class="rule"></div>
+    <p class="claim">它听得见所有人，但只把你一个人的话记进账本。<br>
+      白天，把一天压成三栏；夜里，用你的原话写一篇志怪小说。<br>
+      原文一个字不改，七天之后自动清掉。</p>
+  </div>
+  <div>
+    <div class="seal">谛</div>
+    <div class="meta">
+      版本 0.4 · 2026-11-07 · 比赛原型<br>
+      读者：答辩手 / 设计手<br>
+      仓库：github.com/RUI-debug769/diting（Apache-2.0）<br>
+      配套：README、《使用手册》、v0.4.0 Release
+    </div>
+  </div>
+</section>
+
+<!-- ============ 读前 ============ -->
+<section class="part">
+  <p class="kicker">读前 · 三分钟</p>
+  <h2>这份文档怎么用</h2>
+  <p class="lead">它不替代 README。它把 README 里的「是什么」，翻译成答辩手能讲的话、设计手能落地的规格。</p>
+
+  <div class="cols">
+    <div class="col">
+      <div class="box">
+        <h4>写给答辩手</h4>
+        <p>你需要的不是更多形容词，而是三样东西：<b>当前口径</b>、<b>一条能讲三分钟的线</b>、<b>被追问时不慌的答案</b>。旧材料里的过期说法，这次一次改干净。</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="box">
+        <h4>写给设计手</h4>
+        <p>你需要的不是「再好看一点」，而是<b>不可动的约束</b>：纸、墨、朱砂三色，衬线字，80ms 的节奏，石兽的八个状态，以及哪些东西这一版根本还没做。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>三条硬规矩</h3>
+  <ol>
+    <li><b>只用当前事实。</b>本文所有数字都能指回代码或真机记录；口径冲突时，以 README 和本文为准，不以旧 PPT 为准。</li>
+    <li><b>不美化边界。</b>原型就是原型：要热点、要外接供电、只在一台小米上跑过、云端单机、声音链路没加密。先说出来，比被问出来好。</li>
+    <li><b>每个结论都要能复述。</b>费曼式的最低标准：合上文档，你能用三句话讲清它是什么、怎么跑、为什么这样设计。讲不清的地方，就是还没懂。</li>
+  </ol>
+
+  <h3>如果只记三件事</h3>
+  <div class="cols3">
+    <div><div class="note"><p><b>一、只记主人。</b>声纹阈值 0.48，最多 3 个模板。评委站在它面前说话，账本不动——这是现场最有说服力的一下。</p></div></div>
+    <div><div class="note"><p><b>二、一天只有三栏。</b>事实、待办、需你留意。两百到四百句原话，压到一百字以内；压缩比才是「不用花时间看」的前提。</p></div></div>
+    <div><div class="note"><p><b>三、七天删除。</b>忘记是功能，不是缺陷。没有导出、没有备份，删了找不回来。</p></div></div>
+  </div>
+
+  <h3>目录</h3>
+  <div class="toc">
+    <div><span class="n">01</span>第一性原理：它到底在做什么</div>
+    <div><span class="n">02</span>一条声音的旅程</div>
+    <div><span class="n">03</span>五个不能动的决定</div>
+    <div><span class="n">04</span>答辩手：当前口径与叙事</div>
+    <div><span class="n">05</span>答辩手：二十问</div>
+    <div><span class="n">06</span>答辩手：演示与翻车预案</div>
+    <div><span class="n">07</span>设计手：视觉系统</div>
+    <div><span class="n">08</span>设计手：交互、声与光</div>
+    <div><span class="n">09</span>设计手：硬件与物料</div>
+    <div><span class="n">10</span>交付清单、边界与附录</div>
+  </div>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「我们做了一个没有屏幕的挂坠。它整天听着，但只认你的声音；白天把你说的话压成三栏，晚上用你的原话写一篇小说。它不聊天，也不保存录音，七天后连文字一起忘掉。」</p>
+  </div>
+</section>
+
+<!-- ============ 01 ============ -->
+<section class="part">
+  <p class="kicker">01 · 第一性原理</p>
+  <h2><span class="num">01</span>它到底在做什么</h2>
+  <p class="lead">先把「记录」这件事拆到不能再拆，再决定哪些该做、哪些不该做。</p>
+
+  <h3>一句话版本</h3>
+  <p class="big">谛听不是把声音存下来，而是把一天里「值得回看的一点」留下来，再讲回给你。</p>
+
+  <h3>三个漏斗</h3>
+  <p>它一天要过三道漏斗。每过一道，信息少一个数量级，意义多一层。</p>
+  <table><thead><tr><th style="width:22%">漏斗</th><th style="width:36%">发生了什么</th><th>剩下什么</th></tr></thead>
+    <tr><td class="k">物理漏斗</td><td>16k 采样、40ms 一片的 PCM，经 VAD 切句、声纹认人、ASR 转字</td><td>只有主人的整句文字；别人的声音、音乐、掌声被丢掉</td></tr>
+    <tr><td class="k">信息漏斗</td><td>一天两百到四百句，模型只输出三栏</td><td>不到一百字：事实、待办、需你留意</td></tr>
+    <tr><td class="k">意义漏斗</td><td>同一批原话，再写一篇第一人称短篇</td><td>一篇志怪小说；事实不许新增，只许换一种讲法</td></tr>
+  </table>
+
+  <p>三道漏斗对应三种不同的「准」：第一道要<b>认得准</b>，第二道要<b>判得准</b>，第三道要<b>像</b>。把三者混在一起讲，答辩一定会乱。分开讲，每一层都能单独被验证。</p>
+
+  <h3>它不是什么</h3>
+  <table><thead><tr><th style="width:24%">看起来像</th><th style="width:38%">差别</th><th>一句话回应</th></tr></thead>
+    <tr><td class="k">录音笔</td><td>它不存音频、不能回放，落盘的只有文字</td><td>「录音笔保存声音，它保存的是你说过的话。」</td></tr>
+    <tr><td class="k">日记 App</td><td>日记要求你坐下来写；它替你把整理做完</td><td>「记录最难的不是写，是之后没人看。」</td></tr>
+    <tr><td class="k">聊天助手</td><td>它不回答问题、不主动找你，只记录和重述</td><td>「它不陪你聊天，它替你记住。」</td></tr>
+    <tr><td class="k">监控</td><td>只听一个人、只存文字、七天删除、开源可查</td><td>「它听得见所有人，但账本里只有你。」</td></tr>
+  </table>
+
+  <h3>五条设计公理</h3>
+  <div class="cols">
+    <div class="col">
+      <p><b>A. 身份先于内容。</b>先确定「是谁在说」，再决定「要不要记」。这不是一个功能，是产品本体。</p>
+      <p><b>B. 原文不改。</b>识别错字也原样留着。三栏可以错，原文不能改；否则你无法反驳它。</p>
+      <p><b>C. 忘记是功能。</b>七天删除，没有导出。记得越久，越像一个把柄。</p>
+    </div>
+    <div class="col">
+      <p><b>D. 脸不放在硬件上。</b>一块屏会把作品拉回消费电子；一颗灯、一只石兽，更像活物。</p>
+      <p><b>E. 写而不聊。</b>它不回答、不追问、不主动出声。一开口，它就变成另一个助理。</p>
+      <p class="small">这五条不是价值观口号，是后面所有取舍的判据。任何新功能，先问它破坏了哪一条。</p>
+    </div>
+  </div>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「它先认人，再记事；只留文字，不留声音；只留七天；不聊天，只重述。四件事合起来，才是『只听你一个人说话』。」</p>
+  </div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section class="part">
+  <p class="kicker">02 · 系统</p>
+  <h2><span class="num">02</span>一条声音的旅程</h2>
+  <p class="lead">从你开口，到手机上出现一行字，中间经过四次判断。每一次都可能出错，也都值得在设计里被看见。</p>
+
+  
+
+  <h3>每一站，究竟发生了什么</h3>
+  <table><thead><tr><th style="width:19%">环节</th><th style="width:44%">现在的做法</th><th>关键数字 / 代价</th></tr></thead>
+    <tr><td class="k">采音</td><td>T5AI-CORE 板载麦克风，16k / 16bit / 单声道，每 40ms 一片</td><td>约 31 KB/s；40 秒约 1.25 MB</td></tr>
+    <tr><td class="k">推流</td><td>4 字节小端长度 + PCM，TCP 到固件里写死的云端地址</td><td>队列 50 片（约 2 秒），满了丢最旧，绝不阻塞麦克风</td></tr>
+    <tr><td class="k">切句</td><td>Silero VAD，静音 0.75 秒收尾；太短的段直接丢</td><td>阈值 0.42；小于 0.25 秒不要</td></tr>
+    <tr><td class="k">认人</td><td>CAM++ 192 维声纹，与最多 3 个模板比余弦相似度，取最高</td><td>阈值 0.48；主人实测 0.661，BGM 误判 0.51–0.59</td></tr>
+    <tr><td class="k">转字</td><td>SenseVoice int8 + 逆文本归一化；只有 accepted 的句子才转</td><td>中英日韩粤自动判；方言看模型，没有词表</td></tr>
+    <tr><td class="k">落账</td><td>云端推一行 JSON 到 App 19002；App 按天 key 存 events</td><td>只存文字；原文不做清洗，错字原样保留</td></tr>
+    <tr><td class="k">重述</td><td>把当天原话交给 DeepSeek：先三栏，再文章</td><td>temperature 1.0；max_tokens 8000；读超时 300 秒</td></tr>
+  </table>
+
+  <svg class="flow" viewBox="0 0 760 216" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 z" fill="#8C3322"/>
+      </marker>
+    </defs>
+    <g font-size="11" fill="#2A241C">
+      <rect x="8" y="30" width="118" height="58" fill="#F8F1E3" stroke="#D8C9B2"/>
+      <text x="67" y="53" text-anchor="middle" font-weight="700">挂坠</text>
+      <text x="67" y="70" text-anchor="middle" font-size="9">采音 / 推流</text>
+      <text x="67" y="82" text-anchor="middle" font-size="9">16k · 40ms</text>
+
+      <rect x="170" y="18" width="170" height="82" fill="#F8F1E3" stroke="#D8C9B2"/>
+      <text x="255" y="38" text-anchor="middle" font-weight="700">自建云</text>
+      <text x="255" y="55" text-anchor="middle" font-size="9">VAD 切句 · 声纹认人</text>
+      <text x="255" y="69" text-anchor="middle" font-size="9">SenseVoice 转字</text>
+      <text x="255" y="83" text-anchor="middle" font-size="9">只推 accepted</text>
+
+      <rect x="384" y="30" width="130" height="58" fill="#F8F1E3" stroke="#D8C9B2"/>
+      <text x="449" y="53" text-anchor="middle" font-weight="700">手机</text>
+      <text x="449" y="70" text-anchor="middle" font-size="9">按天存文字</text>
+      <text x="449" y="82" text-anchor="middle" font-size="9">七天清理</text>
+
+      <rect x="558" y="18" width="194" height="82" fill="#F8F1E3" stroke="#D8C9B2"/>
+      <text x="655" y="38" text-anchor="middle" font-weight="700">DeepSeek</text>
+      <text x="655" y="55" text-anchor="middle" font-size="9">三栏 JSON</text>
+      <text x="655" y="69" text-anchor="middle" font-size="9">短篇小说</text>
+      <text x="655" y="83" text-anchor="middle" font-size="9">流式返回</text>
+
+      <line x1="130" y1="59" x2="166" y2="59" stroke="#8C3322" stroke-width="1.2" marker-end="url(#ar)"/>
+      <line x1="344" y1="59" x2="380" y2="59" stroke="#8C3322" stroke-width="1.2" marker-end="url(#ar)"/>
+      <line x1="518" y1="59" x2="554" y2="59" stroke="#8C3322" stroke-width="1.2" marker-end="url(#ar)"/>
+
+      <text x="148" y="49" text-anchor="middle" font-size="8" fill="#6D6151">PCM</text>
+      <text x="362" y="49" text-anchor="middle" font-size="8" fill="#6D6151">JSON</text>
+      <text x="536" y="49" text-anchor="middle" font-size="8" fill="#6D6151">文本</text>
+
+      <text x="8" y="132" font-size="9" fill="#6D6151">1. TCP 19001，4 字节小端长度 + PCM；队列约 2 秒，断线 2 秒重连</text>
+      <text x="8" y="150" font-size="9" fill="#6D6151">2. 不在记录时段内：VAD 段直接丢弃，不认人、不转字</text>
+      <text x="8" y="168" font-size="9" fill="#6D6151">3. 声纹通过才转字；BGM / 掌声 / 笑声先按声学事件丢掉</text>
+      <text x="8" y="186" font-size="9" fill="#6D6151">4. 手机只存文字；三栏与文章是两次独立的模型请求</text>
+      <text x="8" y="204" font-size="9" fill="#6D6151">5. 阅读页按 80ms/字放出；模型再快，也不会一次刷满屏</text>
+    </g>
+  </svg>
+
+  <h3>为什么是 80ms，不是 30ms，也不是「一秒全出」</h3>
+  <p>模型的流式返回比人读得快得多。如果原样刷出来，屏幕会在一瞬间被填满，人来不及读，也来不及感到「它在写」。阅读页把每个字压到 80ms，追帧加速的阈值也放宽了：正常几百字的内容不会被加速，只有落后太多才追。点正文可以整篇跳过，往上滑就不再自动跟到底。</p>
+  <p class="small">注意：11 月 6 日的文章里写的是 30ms，那是上一版。现在是 <b>80ms</b>，代码在 ArticleActivity.java 的 PACE_MS。答辩时不要引用旧数字。</p>
+
+  <h3>它会在哪里断</h3>
+  <div class="cols3">
+    <div><div class="note"><p><b>板子掉线</b>热点没了、供电松了、固件 20 秒没推出去就重启。App 显示「谛听没连上」。</p></div></div>
+    <div><div class="note"><p><b>云端不在</b>单机、无冗余。进程挂了链路就断，板子会重连，但云不在了也连不上。</p></div></div>
+    <div><div class="note"><p><b>模型失败</b>没 Key、额度用完、超时 5 分钟：三栏退回规则兜底，文章退回一段短兜底，页面会标「兜底」。</p></div></div>
+  </div>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「声音在云里先过两道门：先切成整句，再认是不是你。不是你的，连转字都不转。是你的，才变成一行文字落到手机上；手机再把这一天的文字压成三栏，或者写成故事。」</p>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section class="part">
+  <p class="kicker">03 · 取舍</p>
+  <h2><span class="num">03</span>五个不能动的决定</h2>
+  <p class="lead">评委最容易问「为什么不做 X」。这一节把「为什么」和「如果改了会怎样」一次讲清。</p>
+
+  <table><thead><tr><th style="width:17%">决定</th><th style="width:28%">为什么</th><th style="width:30%">被挑战时怎么答</th><th>如果改掉</th></tr></thead>
+    <tr>
+      <td class="k">无屏，只有一颗灯</td>
+      <td>屏幕会把挂坠变成一块手表或一个手机配件；无屏迫使交互回到声音与手机。</td>
+      <td>「没屏怎么交互？」——声音是输入，手机是查看端；它不需要在你说话时看着你。</td>
+      <td>会开始做通知、做表盘、做应用商店，最后变成一个消费电子产品。</td>
+    </tr>
+    <tr>
+      <td class="k">只听主人</td>
+      <td>「谁在说」比「说了什么」更靠近产品本体；否则它只是一个更贵的录音笔。</td>
+      <td>「别人说话怎么办？」——听得见，但不进账本；现场可以让评委说一句，左栏不动。</td>
+      <td>账本会被别人的话污染，三栏和文章都不再是「你的一天」。</td>
+    </tr>
+    <tr>
+      <td class="k">原文不改</td>
+      <td>可追溯、可反驳；三栏是判断，原文是证据。判断可以错，证据不能改。</td>
+      <td>「识别错了怎么办？」——错字原样留着，另开字段修正，不覆盖原话。</td>
+      <td>一旦回写原文，你就无法判断是模型错了，还是它替你改了记忆。</td>
+    </tr>
+    <tr>
+      <td class="k">七天删除</td>
+      <td>忘记是功能；长期保存会把「陪伴」变成「把柄」。</td>
+      <td>「想留怎么办？」——这一版不做导出；未来若做，也应该是本地、加密、你主动。</td>
+      <td>存储、备份、迁移、泄露，每一个都会把项目拖进它现在不想去的方向。</td>
+    </tr>
+    <tr>
+      <td class="k">写而不聊</td>
+      <td>一开口就会变成助理；它只负责记录和重述，不负责回应。</td>
+      <td>「为什么不能问它？」——它不回答；它替你把一天讲回来，回不回答是你的事。</td>
+      <td>会滑向「AI 陪伴」，而那个赛道里，它没有任何优势。</td>
+    </tr>
+    <tr>
+      <td class="k">云端，不是端侧</td>
+      <td>板子算力跑不动 VAD + 声纹 + 多语 ASR；端侧要换更贵的 SoC，工期不够。</td>
+      <td>「不是端侧隐私？」——不是；PCM 会离开板子到自建云，明文，处理完即丢。这是代价，不藏。</td>
+      <td>要么加成本，要么降体验；这一版选了「先跑通，再补加密」。</td>
+    </tr>
+  </table>
+
+  <div class="warn">
+    <p><b>答辩红线：</b>不要说「声音不出手机」「端侧隐私」「没有声纹」「两栏」「按下才听」。这五句在 11 月 6 日之前的材料里都出现过，现在全是错的。正确说法只有一句：<b>声音只到我们自己的服务器，内存里处理完就丢，落盘的只有文字；链路是明文 TCP，没有加密。</b></p>
+  </div>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「我们不是没想到端侧、没想到加密，是这一版先选了能跑通的那条路。无屏、只听主人、不改原文、七天删除、不聊天——这五条不是功能列表，是它之所以是它的原因。」</p>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section class="part">
+  <p class="kicker">04 · 答辩手</p>
+  <h2><span class="num">04</span>当前口径与叙事</h2>
+  <p class="lead">先把过期口径一次改干净，再练一条三分钟的线。所有数字以这一节为准。</p>
+
+  <h3>口径纠偏表</h3>
+  <table><thead><tr><th style="width:34%">旧材料里的说法</th><th style="width:36%">现在的事实</th><th>怎么讲</th></tr></thead>
+    <tr><td>「没有声纹，谁说话都记」</td><td>CAM++ 声纹，阈值 0.48，最多 3 个模板</td><td>「只听主人；评委说话，账本不动。」</td></tr>
+    <tr><td>「识别是系统听写 / 手机本地识别」</td><td>云端 SenseVoice int8，多语种自动判</td><td>「板子只采音，识别在自建云上做。」</td></tr>
+    <tr><td>「两栏：左栏原话，右栏判断」</td><td>两个页签「记 / 写」；写页里才是三栏</td><td>「记只放原话，写放三栏和文章。」</td></tr>
+    <tr><td>「按下才听」</td><td>常开采音，VAD 切句；设置里可限定时段</td><td>「不用按；它一直在听，但只在时段内记账。」</td></tr>
+    <tr><td>「声音不出手机 / 端侧隐私」</td><td>PCM 出板子，明文 TCP 到自建云，处理完即丢</td><td>「声音只到我们自己的服务器，不落盘；链路没加密。」</td></tr>
+    <tr><td>「断网左栏还能用」</td><td>断网就没有新句子；已存文字还能看</td><td>「断网它就不记了；已经记下的还能翻。」</td></tr>
+    <tr><td>「没有大模型 / 纯规则」</td><td>原话不经过大模型；三栏和文章走 DeepSeek</td><td>「原话是识别器给的；判断和故事才是模型写的。」</td></tr>
+    <tr><td>「灯语已经做了」</td><td>灯语是设计规格，外壳/固件未完整落地</td><td>「灯语是下一步；现在能听到的是声语。」</td></tr>
+  </table>
+
+  <h3>数字卡</h3>
+  <div class="cols">
+    <div class="col">
+      <table>
+        <tr><td class="k">主人一句</td><td>声纹 0.661 · 3.17 秒</td></tr>
+        <tr><td class="k">声纹阈值</td><td>0.48；BGM 误判 0.51–0.59</td></tr>
+        <tr><td class="k">采音</td><td>16k / 16bit / 单声道 / 40ms</td></tr>
+        <tr><td class="k">码率</td><td>约 31 KB/s；40 秒 1.25 MB</td></tr>
+        <tr><td class="k">保留</td><td>7 天，整份删除</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <table>
+        <tr><td class="k">压缩比</td><td>200–400 句 → 三栏 &lt; 100 字</td></tr>
+        <tr><td class="k">阅读节奏</td><td>80ms / 字；点正文跳过</td></tr>
+        <tr><td class="k">APK</td><td>0.4 · 约 234 KB · minSdk 26</td></tr>
+        <tr><td class="k">云端</td><td>2 核 1.7G 单机，无冗余</td></tr>
+        <tr><td class="k">工期</td><td>三个人，两天半</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>三分钟叙事（可直接背）</h3>
+  <div class="note">
+    <p>「我们做了个没有屏幕的挂坠，叫谛听。名字借的是神话里那只伏在地上听的神兽，借的是『听』这个动作，不是它的样子。</p>
+    <p>它整天开着，听得见周围所有人，但只认你一个人的声音。别人说话，它听得见，账本不动。这是它和录音笔最根本的区别：不是记得更多，是只记该记的。</p>
+    <p>白天你说的话，它不给你逐字稿，只压成三栏：事实、待办、需要你留意。两百到四百句，最后不到一百字。因为记录最难的不是写，是之后没人看。</p>
+    <p>到了晚上，同一批原话，它会用第一人称写一篇志怪小说。只许用你当天真说过的人、数字、地点、约定；风声灯影可以补，事实不许添。原文一个字不改，收在下面，七天后连小说一起删掉。</p>
+    <p>它不聊天，不回答，不主动找你。它只做一件事：替你记住你是怎么活的，再讲回给你听。」</p>
+  </div>
+
+  <h3>八分钟结构（5 分钟讲 + 3 分钟问答）</h3>
+  <table><thead><tr><th style="width:14%">时间</th><th style="width:22%">节拍</th><th>要落地的一句话</th></tr></thead>
+    <tr><td>0:00–1:00</td><td>问题</td><td>「记录的需求一直在，缺的不是更准的录音，是之后有人替你看。」</td></tr>
+    <tr><td>1:00–2:30</td><td>它是什么</td><td>「只听你一个人；白天三栏，夜里一篇；七天删除。」</td></tr>
+    <tr><td>2:30–4:00</td><td>怎么做到</td><td>「板子采音，云里切句认人转字，手机压成三栏，再写成故事。」</td></tr>
+    <tr><td>4:00–5:00</td><td>现场演示</td><td>「我现在说一句，你们看左栏；然后请评委说一句，看它不动。」</td></tr>
+    <tr><td>5:00–8:00</td><td>边界与问答</td><td>「它不是端侧、不是成品、不是陪伴；它是记录器。」</td></tr>
+  </table>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「先用一句话让人记住『只听你』，再用三栏解释『为什么不是逐字稿』，最后用那篇小说解释『为什么记录可以变成讲述』。三个层次，不要混着讲。」</p>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section class="part">
+  <p class="kicker">05 · 答辩手</p>
+  <h2><span class="num">05</span>二十问</h2>
+  <p class="lead">每题给一个能直接说出口的短答，再给一句「如果被追问」。不要背长段，背关键词。</p>
+
+  <h3>A. 产品</h3>
+  <div class="qa"><div class="q"><span class="n">01</span>一句话说这是什么？</div><div class="a">一个只听你的记言器：白天把原话压成三栏，夜里写成一篇志怪小说，七天删除。</div><div class="follow"><b>追问</b> 不是录音笔，也不是日记 App；它替你做整理和重述。</div></div>
+  <div class="qa"><div class="q"><span class="n">02</span>和录音笔、日记 App 有什么区别？</div><div class="a">录音笔保存声音，它只留文字；日记 App 要求你写，它替你把一天压短。</div><div class="follow"><b>追问</b> 核心指标是压缩比：两百到四百句，最后不到一百字。</div></div>
+  <div class="qa"><div class="q"><span class="n">03</span>为什么不做成手机 App？</div><div class="a">手机麦克风拿不到「整天、随身、不占手」的连续声音；而且手机会让你分心去看它。</div><div class="follow"><b>追问</b> 这一版是挂坠 + 手机查看端，手机不负责采音。</div></div>
+  <div class="qa"><div class="q"><span class="n">04</span>为什么没有屏幕？</div><div class="a">一块屏会把作品拉回消费电子；无屏迫使交互回到声音，查看交给手机。</div><div class="follow"><b>追问</b> 「没屏怎么交互？」——它不需要你盯着它，只需要你说话。</div></div>
+  <div class="qa"><div class="q"><span class="n">05</span>「写」和「记」是什么关系？</div><div class="a">同一批原话的两种用法：三栏求准，小说求像；共同底线是不得新增事实。</div><div class="follow"><b>追问</b> 原文一个字不改；三栏和文章都是可错的判断。</div></div>
+
+  <h3>B. 技术</h3>
+  <div class="qa"><div class="q"><span class="n">06</span>声纹怎么工作？别人说话会怎样？</div><div class="a">CAM++ 192 维向量，与最多 3 个模板比余弦相似度，阈值 0.48；不是主人就不转字、不进账本。</div><div class="follow"><b>追问</b> 它只是过滤器，不是身份认证；嗓音接近的人仍可能骗过。</div></div>
+  <div class="qa"><div class="q"><span class="n">07</span>识别准确率多少？方言呢？</div><div class="a">没有系统评测，不给百分比。普通话日常短句可用；方言看 SenseVoice，没有词表，别在会上承诺。</div><div class="follow"><b>追问</b> BGM、掌声、笑声会先按声学事件丢掉，但音乐偶尔仍会漏。</div></div>
+  <div class="qa"><div class="q"><span class="n">08</span>三栏会不会编？</div><div class="a">会。提示词要求只基于原话、宁可空不要凑，但它仍可能判断错；所以原文必须保留、且不可改。</div><div class="follow"><b>追问</b> 质量随模型状态波动，我们没做横向评测。</div></div>
+  <div class="qa"><div class="q"><span class="n">09</span>「写」是不是 AI 代写、会不会编造？</div><div class="a">它只许用当天原话里的人、数字、地点、约定；环境可写，事实不许添。仍会写超 10–20%，偶尔道具漂移，重写一次通常会变。</div><div class="follow"><b>追问</b> 失败会走一段短兜底，页面和通知都标「兜底写的」。</div></div>
+  <div class="qa"><div class="q"><span class="n">10</span>为什么用云端，不做端侧？</div><div class="a">板子算力跑不动 VAD + 声纹 + 多语 ASR；端侧要换更贵的 SoC，工期不够。</div><div class="follow"><b>追问</b> 代价是隐私：PCM 出板子、明文到自建云；这是这一版明确欠下的债。</div></div>
+  <div class="qa"><div class="q"><span class="n">11</span>断网还能用吗？</div><div class="a">不能记新的；已经落在手机上的文字还能看。三栏和文章需要网络与 Key。</div><div class="follow"><b>追问</b> 这不是「离线优先」，是「云端单机」；说清楚，不遮。</div></div>
+
+  <h3>C. 隐私与伦理</h3>
+  <div class="qa"><div class="q"><span class="n">12</span>声音去哪了？加密了吗？</div><div class="a">PCM 走公网明文 TCP 到我们自己的服务器，内存里切句、认人、转字，处理完就丢，不落盘；没有传输加密。</div><div class="follow"><b>追问</b> 手机只存文字七天；发给 DeepSeek 的也只有文字，没有音频。</div></div>
+  <div class="qa"><div class="q"><span class="n">13</span>这不就是监控吗？</div><div class="a">它只听一个人、只存文字、只留七天、开源可查；监控要的是所有人、长期、不可见。</div><div class="follow"><b>追问</b> 但「听得见所有人」仍然是风险；我们不把它说成无风险。</div></div>
+  <div class="qa"><div class="q"><span class="n">14</span>七天删除，删得掉吗？</div><div class="a">手机上按天整份删，原文、三栏、文章一起；没有备份、没有导出，删了找不回来。</div><div class="follow"><b>追问</b> 云端不落音频；但链路抓包是另一回事，明文就是明文。</div></div>
+  <div class="qa"><div class="q"><span class="n">15</span>人到底想不想看见「另一个版本的自己」？</div><div class="a">没有答案。大多数人可能只想看「更好的自己」，而它会重述、会带偏见；这决定它是留人的还是伤人的。</div><div class="follow"><b>追问</b> 这是我们主动留在「已知局限」里的问题，不装作解决了。</div></div>
+
+  <h3>D. 商业、团队与未来</h3>
+  <div class="qa"><div class="q"><span class="n">16</span>商业化怎么做？</div><div class="a">这一版是比赛原型，先验证「被理解」是不是真需求；硬件一次性 + 可选订阅是可能形态，现在不下结论。</div><div class="follow"><b>追问</b> 没有 BOM、没有量产、没有用户数据；别编。</div></div>
+  <div class="qa"><div class="q"><span class="n">17</span>硬件成本、续航、可穿戴？</div><div class="a">开发板 + 18650 + 手工外壳；要热点、要外接供电，日常戴一整天不行。</div><div class="follow"><b>追问</b> 续航没测过全天；演示半天要接充电宝。</div></div>
+  <div class="qa"><div class="q"><span class="n">18</span>你们最难的技术点是什么？</div><div class="a">不是模型，是把「只在主人说话时记」做稳：VAD 切句、声纹阈值、噪声丢弃、断线重连，每一环都会漏。</div><div class="follow"><b>追问</b> 0.48 是折中：主人 0.66 能过，BGM 0.51–0.59 也能过；再严就漏记。</div></div>
+  <div class="qa"><div class="q"><span class="n">19</span>三个人两天半，怎么分工？</div><div class="a">工程负责固件/云/App，设计负责界面、石兽、外壳与物料，答辩负责叙事与演示；每天合并一次，真机跑一遍。</div><div class="follow"><b>追问</b> 开源许可 Apache-2.0；固件只开源 bin，源码还在 TuyaOpen 工作区。</div></div>
+  <div class="qa"><div class="q"><span class="n">20</span>下一步是什么？</div><div class="a">四件事：传输加密、更强的声纹（多模板/现场标阈值）、方言词表、能日常戴的外壳。</div><div class="follow"><b>追问</b> 不会先做聊天、社交、导出；那会把产品带偏。</div></div>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「产品题答『只记你』，技术题答『三道漏斗』，隐私题答『明文、只到自建云、七天删』，商业题答『还没验证』。不会的就说不确定，比编一个数字安全。」</p>
+  </div>
+</section>
+
+<!-- ============ 06 ============ -->
+<section class="part">
+  <p class="kicker">06 · 答辩手</p>
+  <h2><span class="num">06</span>演示与翻车预案</h2>
+  <p class="lead">现场演示的目标不是「顺利」，是「即使不顺，也让人看见它是什么」。</p>
+
+  <h3>上场前 10 分钟检查</h3>
+  <div class="cols">
+    <div class="col">
+      <ul class="tight">
+        <li>手机热点已开，名字与固件里编译的一致；密码正确。</li>
+        <li>板子电量够；USB 供电/充电宝就位；指示灯亮。</li>
+        <li>App 显示「谛听在线，正在听」；说一句测试，左栏落字。</li>
+        <li>声纹已录；让同伴说一句，确认左栏不动。</li>
+        <li>DeepSeek Key 有效、额度够；三栏能出。</li>
+      </ul>
+    </div>
+    <div class="col">
+      <ul class="tight">
+        <li>当天已有一篇写好的文章，作为断网备份。</li>
+        <li>手机静音、勿扰、关自动更新；通知栏干净。</li>
+        <li>投屏线/转接头试过；字体大小调到后排能看清。</li>
+        <li>两分钟视频离线存本地，不依赖网络。</li>
+        <li>设置页版本显示「谛听 0.4 · 2026-11-07」。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>两分钟视频分镜（12 镜）</h3>
+  <table><thead><tr><th style="width:10%">镜</th><th style="width:12%">时间</th><th style="width:40%">画面</th><th>字幕 / 声音</th></tr></thead>
+    <tr><td>1</td><td>0:00–0:08</td><td>桌面，挂坠特写，灯慢慢呼吸</td><td>「它整天听着。」</td></tr>
+    <tr><td>2</td><td>0:08–0:16</td><td>手拿起挂坠，别在领口</td><td>「但没有屏幕。」</td></tr>
+    <tr><td>3</td><td>0:16–0:26</td><td>主人说：「记一下，明天下午三点和张老师开会。」</td><td>原声，不配乐</td></tr>
+    <tr><td>4</td><td>0:26–0:34</td><td>手机左栏落下一行字，特写</td><td>「只有你的话，进得了账本。」</td></tr>
+    <tr><td>5</td><td>0:34–0:44</td><td>旁人对着挂坠说话；左栏不动；石兽闭眼摇头</td><td>「它听得见所有人。」</td></tr>
+    <tr><td>6</td><td>0:44–0:52</td><td>主人再说一句：「今天下午去图书馆还书。」</td><td>「但只记你。」</td></tr>
+    <tr><td>7</td><td>0:52–1:02</td><td>切到「写」页，三栏出现</td><td>「一天，压成三栏。」</td></tr>
+    <tr><td>8</td><td>1:02–1:12</td><td>点「让它写」，石兽盯着珊瑚点</td><td>「事实、待办、需你留意。」</td></tr>
+    <tr><td>9</td><td>1:12–1:32</td><td>阅读页，文章按 80ms/字流出</td><td>「夜里，它用你的原话写一篇。」</td></tr>
+    <tr><td>10</td><td>1:32–1:42</td><td>文章里一句志怪句子特写</td><td>「不添人，不添事。」</td></tr>
+    <tr><td>11</td><td>1:42–1:52</td><td>日历回看，珊瑚点；七天说明</td><td>「七天后，它忘掉。」</td></tr>
+    <tr><td>12</td><td>1:52–2:00</td><td>黑屏，仓库地址与 Apache-2.0</td><td>「忘记是功能。」</td></tr>
+  </table>
+
+  <h3>现场 5 分钟演示脚本</h3>
+  <table><thead><tr><th style="width:14%">时间</th><th style="width:34%">动作</th><th>台词</th></tr></thead>
+    <tr><td>0:00</td><td>举起挂坠，不急着说话</td><td>「这就是全部硬件：一块开发板、一颗电池、一个手工外壳。没有屏幕。」</td></tr>
+    <tr><td>0:30</td><td>说第一句，等左栏落字</td><td>「我现在说一句，它只会记下我的声音。」</td></tr>
+    <tr><td>1:10</td><td>请评委说一句</td><td>「请您随便说一句。看，左栏不动——它听得见，但不记。」</td></tr>
+    <tr><td>1:50</td><td>切「写」页，点「让它写」</td><td>「白天的话，压成三栏；要看的只有这几件。」</td></tr>
+    <tr><td>3:00</td><td>进阅读页，让文章流一会儿</td><td>「这是它写的那一篇。第一人称，志怪底色，只用了今天出现过的人和事。」</td></tr>
+    <tr><td>4:10</td><td>点正文跳过，翻到文章末尾</td><td>「点一下可以跳过；它慢，是故意的，不是网慢。」</td></tr>
+    <tr><td>4:30</td><td>回日历，指珊瑚点</td><td>「七天，之后整份删除。没有导出，也没有备份。」</td></tr>
+  </table>
+
+  <h3>翻车预案</h3>
+  <table><thead><tr><th style="width:24%">如果发生</th><th style="width:38%">先做什么</th><th>怎么说</th></tr></thead>
+    <tr><td class="k">板子不在线</td><td>查热点名/密码、供电、重启板子；30 秒不好就放弃</td><td>「现场网络不稳，我放昨晚的录屏；链路是一样的。」</td></tr>
+    <tr><td class="k">云端不可达</td><td>切到已存的那一天，展示三栏与文章</td><td>「云端是单机，今天它不在；但记录还在手机上。」</td></tr>
+    <tr><td class="k">Key 失效/没额度</td><td>让它走兜底，展示「兜底写的」标记</td><td>「模型没连上时，它会退回一段短兜底，并且告诉你。」</td></tr>
+    <tr><td class="k">模型很慢</td><td>不超过 5 分钟；期间讲设计取舍</td><td>「自动写要几分钟，前台服务会常驻一条通知。」</td></tr>
+    <tr><td class="k">投屏失败</td><td>直接举手机；或用截图</td><td>「没关系，屏幕小一点，但东西是真的。」</td></tr>
+    <tr><td class="k">评委的声音被记了</td><td>不要掩饰，当场指出</td><td>「这就是阈值折中的代价：嗓音接近时会漏。我们宁可漏记，也不愿错记。」</td></tr>
+  </table>
+
+  <div class="warn">
+    <p><b>永远不要假装实时。</b>没连上就说没连上，放录屏就说放录屏。这个项目的可信度，一半来自它敢说自己哪里不行。</p>
+  </div>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「演示只证明两件事：它只记主人；它能把一天讲回来。其余的都是解释，解释可以慢，不能假。」</p>
+  </div>
+</section>
+
+<!-- ============ 07 ============ -->
+<section class="part">
+  <p class="kicker">07 · 设计手</p>
+  <h2><span class="num">07</span>视觉系统</h2>
+  <p class="lead">它不是「深色模式 + 卡片」，是一套纸、墨、朱砂。先守住三色，再谈好看。</p>
+
+  <h3>一句话风格</h3>
+  <p class="big">像一本摊开的纸手帐：米色纸、暖黑墨、一点朱砂；没有边框、没有阴影、没有第二个强调色。</p>
+
+  <h3>色板</h3>
+  <table><thead><tr><th style="width:18%">角色</th><th style="width:27%">日纸（浅）</th><th style="width:27%">夜纸（深）</th><th>用法</th></tr></thead>
+    <tr><td class="k">纸面 BG</td><td><span class="sw" style="background:#F2EADA"></span>#F2EADA</td><td><span class="sw" style="background:#16130F"></span>#16130F</td><td>整屏底色，从上到下略深</td></tr>
+    <tr><td class="k">纸深 BG_DEEP</td><td><span class="sw" style="background:#EAE0CC"></span>#EAE0CC</td><td><span class="sw" style="background:#120F0C"></span>#120F0C</td><td>渐变末端，撑出纸纹</td></tr>
+    <tr><td class="k">叠纸 CARD</td><td><span class="sw" style="background:#F8F1E3"></span>#F8F1E3</td><td><span class="sw" style="background:#211C16"></span>#211C16</td><td>气泡、输入框、月历</td></tr>
+    <tr><td class="k">发丝线</td><td><span class="sw" style="background:#D8C9B2"></span>#D8C9B2</td><td><span class="sw" style="background:#3A3127"></span>#3A3127</td><td>1px 分隔，不用投影</td></tr>
+    <tr><td class="k">墨 INK</td><td><span class="sw" style="background:#2A241C"></span>#2A241C</td><td><span class="sw" style="background:#EFE5D2"></span>#EFE5D2</td><td>正文、标题</td></tr>
+    <tr><td class="k">淡墨 MUTED</td><td><span class="sw" style="background:#6D6151"></span>#6D6151</td><td><span class="sw" style="background:#A99A83"></span>#A99A83</td><td>副标题、说明</td></tr>
+    <tr><td class="k">更淡 FAINT</td><td><span class="sw" style="background:#9B8D78"></span>#9B8D78</td><td><span class="sw" style="background:#78695A"></span>#78695A</td><td>注脚、日期、计数</td></tr>
+    <tr><td class="k">朱砂 ACCENT</td><td><span class="sw" style="background:#B4472F"></span>#B4472F</td><td><span class="sw" style="background:#D8795B"></span>#D8795B</td><td>选中、提醒、主按钮</td></tr>
+    <tr><td class="k">朱砂深</td><td><span class="sw" style="background:#8C3322"></span>#8C3322</td><td><span class="sw" style="background:#E89372"></span>#E89372</td><td>按下态、强调</td></tr>
+    <tr><td class="k">朱砂兑水 WASH</td><td><span class="sw" style="background:#EADBC8"></span>#EADBC8</td><td><span class="sw" style="background:#2A2119"></span>#2A2119</td><td>输入框、时间格、提醒底</td></tr>
+    <tr><td class="k">朱砂上的字</td><td><span class="sw" style="background:#F7EFDF"></span>#F7EFDF</td><td><span class="sw" style="background:#1A1511"></span>#1A1511</td><td>ON_ACCENT</td></tr>
+  </table>
+  <p class="small">这些值来自 <b>Theme.java</b>，不是审美建议。改一个，整套对比都会变；要改先跟工程说。</p>
+
+  <h3>字</h3>
+  <div class="cols">
+    <div class="col">
+      <ul class="tight">
+        <li><b>整页衬线。</b>正文、标题、按钮都用 serif；层级靠字号与颜色，不靠字重堆叠。</li>
+        <li><b>字号阶梯：</b>标题 26–28sp；正文 15–16sp；说明 13sp；注脚 10–11sp。</li>
+        <li><b>行高</b>约 1.5–1.6；中文两端对齐会拉开字距，正文左对齐更稳。</li>
+      </ul>
+    </div>
+    <div class="col">
+      <ul class="tight">
+        <li><b>不要用</b>系统默认无衬线做大标题；也不要用三种以上字号。</li>
+        <li><b>数字与英文</b>跟着衬线走；不要单独换字体。</li>
+        <li><b>字距：</b>小标签可加 0.08–0.12em；正文不加。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>版式</h3>
+  <div class="cols">
+    <div class="col">
+      <p><b>纸叠纸，不画卡片。</b>三栏是直接压在纸面上的三段，用留白和一条发丝线分开；不要圆角白卡、不要投影。</p>
+      <p><b>只留一颗主按钮。</b>朱砂胶囊只给「让它写」；其余操作一律细线图标 + 短标签。</p>
+      <p><b>一个屏幕一个强调色。</b>朱砂只出现在：选中页签下划线、日历珊瑚点、提醒标签、主按钮。</p>
+    </div>
+    <div class="col">
+      <p><b>边距：</b>左右 24dp；块间 16–24dp；标题与正文之间 6–10dp。</p>
+      <p><b>图标：</b>24dp、1.5dp 细线、手绘路径；不用 Material 图标包。</p>
+      <p><b>深浅切换：</b>不是调亮度，是换一整套纸墨；切换后整页重建，不做局部换色。</p>
+    </div>
+  </div>
+
+  <div class="imgrow">
+    <figure><img src="file:///home/murdo_klein/hackthon/AI+culture/docs/screens/themes.png" alt="日纸与夜纸"><figcaption>日纸 / 夜纸：同一套纸墨，不是反色。</figcaption></figure>
+  </div>
+
+  <h3>不要做</h3>
+  <table><thead><tr><th style="width:32%">不要</th><th>原因</th></tr></thead>
+    <tr><td>圆角白卡 + 阴影</td><td>会把纸手帐变成普通 Dashboard；阴影一多，页面就“脏”。</td></tr>
+    <tr><td>药丸形小按钮排成一行</td><td>视觉噪音；只保留一颗主按钮，其余用图标。</td></tr>
+    <tr><td>第二个强调色（蓝/绿）</td><td>朱砂是唯一的“人味”；第二个颜色会抢走它。</td></tr>
+    <tr><td>把石兽做成 3D 或写实宠物</td><td>像素的便宜与诚实，是它不惹人烦的原因。</td></tr>
+  </table>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「它看起来像一本摊开的纸手帐：米色纸、暖黑墨、一点朱砂。没有卡片边框，没有第二个强调色，整页只有一颗主按钮。」</p>
+  </div>
+</section>
+
+<!-- ============ 08 ============ -->
+<section class="part">
+  <p class="kicker">08 · 设计手</p>
+  <h2><span class="num">08</span>交互、声与光</h2>
+  <p class="lead">它的反馈不是弹窗和红点，是石兽的表情、一声石头响、一颗灯的呼吸。</p>
+
+  <h3>两个页签</h3>
+  <table><thead><tr><th style="width:14%">页签</th><th style="width:40%">放什么</th><th>不放什么</th></tr></thead>
+    <tr><td class="k">记</td><td>当天原话，按时间顺序；日期与日历回看；展开/收起</td><td>三栏、文章、任何模型生成的内容</td></tr>
+    <tr><td class="k">写</td><td>三栏判断；最近七天的文章列表；底部「让它写」</td><td>未加工的逐字稿（原话在「记」里）</td></tr>
+  </table>
+  <p>旧日期：底部按钮变成「回到今天」；三栏只给看，不给改写。文章可以在「写」列表里点某一天补写（往回七天）。</p>
+
+  <h3>80ms 的节奏</h3>
+  <ul class="tight">
+    <li>模型流式返回，阅读页先收下，再按 <b>80ms/字</b> 放出；正在写的字末尾有一个光标。</li>
+    <li>点正文：整篇立即显示；往上滑：停止自动跟到底。</li>
+    <li>追帧加速只在高延迟时触发；正常几百字不会被加速。</li>
+    <li>标题上的件数在写作期间冻结，写完才更新，避免「5 件 → 没事 → 5 件」的跳动。</li>
+  </ul>
+
+  <h3>石兽的八个状态</h3>
+  <table><thead><tr><th style="width:16%">状态</th><th style="width:34%">触发</th><th>表情/动作</th></tr></thead>
+    <tr><td class="k">待机</td><td>没有新事件</td><td>坐着，耳朵放松；三分钟没人理，睡着，头顶 zzz</td></tr>
+    <tr><td class="k">在听</td><td>主人说了一句，被记下</td><td>耳朵立起；一声 TICK</td></tr>
+    <tr><td class="k">不是你</td><td>speaker=other，非噪声</td><td>闭眼摇头；一声 HUSH</td></tr>
+    <tr><td class="k">思考</td><td>点「让它写」之后</td><td>盯着右上角的珊瑚点</td></tr>
+    <tr><td class="k">书写</td><td>模型开始吐字</td><td>眼睛垂下，顶上流苏左右摆</td></tr>
+    <tr><td class="k">写完</td><td>文章落盘</td><td>眼睛弯成两道笑；一声 SETTLE</td></tr>
+    <tr><td class="k">掉线</td><td>板子不在线</td><td>整个人塌下去；不响</td></tr>
+    <tr><td class="k">被戳</td><td>点它</td><td>极轻地弹一下；一声 POKE</td></tr>
+  </table>
+
+  <div class="imgrow">
+    <figure><img src="file:///home/murdo_klein/hackthon/AI+culture/docs/build/pet-states-2row.png" alt="石兽状态"><figcaption>石兽状态条：20×18 像素，一格一格画；换表情只是换几行字符串。</figcaption></figure>
+  </div>
+
+  <h3>声语：石头与木头</h3>
+  <div class="cols">
+    <div class="col">
+      <table><thead><tr><th style="width:24%">声音</th><th>什么时候</th></tr></thead>
+        <tr><td class="k">TICK</td><td>记下一句：小石子落在木桌上，干、短</td></tr>
+        <tr><td class="k">HUSH</td><td>听见不是你的：布包住木头的闷响</td></tr>
+        <tr><td class="k">SETTLE</td><td>写完了：木块放稳，轻磕一下</td></tr>
+        <tr><td class="k">POKE</td><td>被戳：极轻的一颗石子</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <p><b>四条规矩：</b>不出人声、不出词句；不出音高、不成旋律；不用合成器音色（噪声激励 + 非谐和衰减模态）；只在四个时刻响。</p>
+      <p><b>写的时候、想的时候、断开的时候，都不响。</b>关掉声音，就只剩灯和石兽。</p>
+      <p class="small">手机端已实现；板端固件 11-07 也能直推 PCM，但外壳没有喇叭，需要外接 4Ω 1–3W。</p>
+    </div>
+  </div>
+
+  <h3>灯语（设计规格，未完整落地）</h3>
+  <table><thead><tr><th style="width:20%">状态</th><th style="width:26%">节律</th><th>含义</th></tr></thead>
+    <tr><td class="k">待机</td><td>呼吸，2.4 秒一周期</td><td>它在，但没在记</td></tr>
+    <tr><td class="k">在听</td><td>0.9 秒周期，跟 RMS 走</td><td>听见你说话了</td></tr>
+    <tr><td class="k">听到别人</td><td>两次短跳</td><td>听见了，但不是你</td></tr>
+    <tr><td class="k">被否定</td><td>急闪三下</td><td>这次不算</td></tr>
+    <tr><td class="k">夜间书写</td><td>5 秒慢呼吸</td><td>它在写那一篇</td></tr>
+    <tr><td class="k">断连</td><td>全灭</td><td>没连上</td></tr>
+  </table>
+  <p class="small">板上 LED 在 GPIO9，高电平亮。灯语目前是规格与演示动画，不要说「已经做好了」。</p>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「它不弹窗。记下了，是一颗石子落桌；不是你，是布包住木头；写完了，是木块放稳。你不看屏幕，也知道它在干什么。」</p>
+  </div>
+</section>
+
+<!-- ============ 09 ============ -->
+<section class="part">
+  <p class="kicker">09 · 设计手</p>
+  <h2><span class="num">09</span>硬件与物料</h2>
+  <p class="lead">外壳不是「包一层」：它是这个产品第一眼的样子。尺寸、分模、开孔，都要按现在这版参数走。</p>
+
+  <div class="imgrow">
+    <figure><img src="file:///home/murdo_klein/hackthon/AI+culture/hardware/shell/preview/view_iso.png" alt="外壳等轴视图"><figcaption>两片式外壳，等轴视图；按 20×18 像素精灵放大。</figcaption></figure>
+    <figure><img src="file:///home/murdo_klein/hackthon/AI+culture/hardware/shell/preview/fig4_exploded.png" alt="爆炸图"><figcaption>爆炸图：前壳、眼片、主板、18650、后盖。</figcaption></figure>
+  </div>
+
+  <h3>外壳参数</h3>
+  <table><thead><tr><th style="width:26%">项</th><th>值</th></tr></thead>
+    <tr><td class="k">外形</td><td>104 × 97.5 × 44 mm；含顶部芽 110.5 mm</td></tr>
+    <tr><td class="k">建模基准</td><td>20×18 像素精灵，6.5 mm/格；壁厚 2.4 mm</td></tr>
+    <tr><td class="k">分模</td><td>Z = 22 mm；前脸内凹 0.9 mm；卡舌 + 球卡点合盖</td></tr>
+    <tr><td class="k">眼片</td><td>12.8 × 12.8 × 1.6 mm</td></tr>
+    <tr><td class="k">主板</td><td>67.5 × 28.04 mm，元件面朝前</td></tr>
+    <tr><td class="k">电池</td><td>18650 横放，后盖内</td></tr>
+    <tr><td class="k">开孔</td><td>麦克风 Ø4.6 导音孔；按键 Ø4.6 / Ø3.2；USB-C 底面 10.2 × 3.4 mm</td></tr>
+    <tr><td class="k">打印</td><td>PLA / PETG；0.2 mm 层高；3 圈壁；15% 填充</td></tr>
+    <tr><td class="k">喇叭</td><td><b>没有。</b>HAS_SPEAKER=False；板上只有 1W 功放 + JST PH 1.25 座，可外接 4Ω 1–3W</td></tr>
+  </table>
+
+  <h3>装配顺序</h3>
+  <ol class="tight">
+    <li>主板固定在前壳：麦克风对准 Ø4.6 导音孔，USB-C 对准底面开孔。</li>
+    <li>眼片压进前脸凹槽；灯/导光件对准 GPIO9 位置。</li>
+    <li>18650 横放进后盖；注意极性，不要反装。</li>
+    <li>合盖：先卡下缘卡舌，再压上缘球卡点；听到一声轻响即到位。</li>
+    <li>上电前先测：板子能启动、热点能连、麦克风有电平；再合最后一次盖。</li>
+  </ol>
+
+  <div class="warn">
+    <p><b>安全：</b>18650 必须用带保护板的电芯；不要直接焊电芯；不要反装；演示时不要放在包里长时间通电。外壳是 PLA/PETG，不是阻燃材料。</p>
+  </div>
+
+  <h3>物料清单（答辩/展台）</h3>
+  <div class="cols">
+    <div class="col">
+      <ul class="tight">
+        <li>成品挂坠 ×2（一台演示，一台备份）</li>
+        <li>18650 ×2、充电器、充电宝、短 USB 线</li>
+        <li>热点备用机 ×1（只开热点，不装卡）</li>
+        <li>A6 角色卡 ×20；三视图/爆炸图 A3 ×2</li>
+      </ul>
+    </div>
+    <div class="col">
+      <ul class="tight">
+        <li>演示手机 ×1（已装 0.4、已录声纹、已存一天数据）</li>
+        <li>两分钟视频（离线）/ 截图备份</li>
+        <li>展台说明牌：一句话 + 三个数字 + 仓库二维码</li>
+        <li>擦镜布、备用外壳（防止现场摔裂）</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="say">
+    <b>讲给别人听</b>
+    <p>「外壳是按一个 20×18 的像素精灵放大的：6.5 毫米一格，两片式，18650 横放。它没有喇叭——声音要么在手机里，要么外接。」</p>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="part">
+  <p class="kicker">10 · 交付</p>
+  <h2><span class="num">10</span>交付清单、边界与附录</h2>
+  <p class="lead">最后一节只回答三个问题：谁交什么、哪些不能改、被问到时去哪找答案。</p>
+
+  <h3>分工与交付</h3>
+  <table><thead><tr><th style="width:16%">角色</th><th style="width:42%">交付物</th><th>截止</th></tr></thead>
+    <tr><td class="k">答辩手</td><td>8 分钟讲稿；20 问答案卡；两分钟视频；12–15 页 PPT；现场检查表</td><td>T-1 晚</td></tr>
+    <tr><td class="k">设计手</td><td>三视图 + 爆炸图；A6 角色卡；色板/字体规范；石兽状态条；PPT 模板；展台说明牌</td><td>T-1 晚</td></tr>
+    <tr><td class="k">工程</td><td>0.4 APK；固件 bin；云端可用；README/提示词；Release</td><td>T-1 中午</td></tr>
+    <tr><td class="k">共同</td><td>真机联调一次；断网/断云演练一次；口径对齐一次（以本文为准）</td><td>T-1 下午</td></tr>
+  </table>
+
+  <h3>不要再改的东西</h3>
+  <div class="cols3">
+    <div><div class="note"><p><b>三栏字段名</b><br>facts / todos / watch。改了，旧记录读不出来。</p></div></div>
+    <div><div class="note"><p><b>七天与 80ms</b><br>KEEP_DAYS=7；PACE_MS=80。这是产品语义，不是性能参数。</p></div></div>
+    <div><div class="note"><p><b>色板 hex</b><br>Theme.java 里的值。改一个，整套对比都会变。</p></div></div>
+  </div>
+  <p class="small">提示词（SUMMARY_SYSTEM / ARTICLE_SYSTEM）也不要临时改。答辩前改提示词，等于把已经验证过的输出重新变成未知。</p>
+
+  <h3>名词表</h3>
+  <table><thead><tr><th style="width:18%">词</th><th>一句话解释</th></tr></thead>
+    <tr><td class="k">VAD</td><td>语音活动检测：判断哪一段是人在说话，把静音切掉。</td></tr>
+    <tr><td class="k">声纹</td><td>用一小段声音算出的向量，用来判断「是不是同一个人」；这里只是过滤器，不是身份认证。</td></tr>
+    <tr><td class="k">ASR</td><td>自动语音识别：把声音转成文字；这里是 SenseVoice int8。</td></tr>
+    <tr><td class="k">三栏</td><td>事实、待办、需你留意；一天原话的压缩判断。</td></tr>
+    <tr><td class="k">兜底</td><td>模型失败时退回的规则结果或短文章；页面与通知都会标注。</td></tr>
+    <tr><td class="k">声语</td><td>手机端合成的石头/木头瞬态声；不是提示音，不承载语义。</td></tr>
+    <tr><td class="k">石兽</td><td>20×18 像素的界面角色；八个状态对应链路真实状态。</td></tr>
+    <tr><td class="k">记录窗口</td><td>设置里的起止时间；窗口外 VAD 段直接丢，不认人、不转字。</td></tr>
+  </table>
+
+  <h3>合上文档前的自检</h3>
+  <ol class="tight">
+    <li>能否用三句话讲清它是什么、只记谁、留多久？</li>
+    <li>能否画出「板子 → 云 → 手机 → 模型」四段，并说出每段只做什么？</li>
+    <li>能否解释 0.48 这个阈值为什么是折中，而不是「更准」？</li>
+    <li>能否说清「声音去了哪里」而不说「声音不出门」？</li>
+    <li>能否解释 80ms 是设计，不是网速？</li>
+    <li>能否说出「写」和「三栏」的共同底线？</li>
+    <li>能否列出至少五条已知局限，且不辩解？</li>
+    <li>能否在板子掉线时，30 秒内切到录屏并说清楚？</li>
+    <li>能否指出旧材料里至少三处过期口径？</li>
+    <li>能否用一句话说服别人：为什么必须开源？</li>
+  </ol>
+
+  <h3>链接</h3>
+  <ul class="tight">
+    <li>仓库：github.com/RUI-debug769/diting（Apache-2.0）</li>
+    <li>Release v0.4.0：github.com/RUI-debug769/diting/releases/tag/v0.4.0</li>
+    <li>提示词：prompts/article.md；三栏提示词在 Lm.java 的 SUMMARY_SYSTEM</li>
+    <li>记录格式：README「一条记录长什么样」；schema/record.md 是更早的逐条设计</li>
+    <li>使用手册：docs/谛听-使用手册.pdf</li>
+  </ul>
+
+  <div class="say">
+    <b>最后一句</b>
+    <p>「录音笔保存声音，它保存的是你说过的话，怎么变成你对自己的讲述。」</p>
+  </div>
+</section>
+
+</body>
+</html>

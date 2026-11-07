@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>谛听 · 使用手册</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 15mm 15mm; }
+  :root{
+    --paper:#FBF6EC; --paper2:#F4EBDC; --ink:#2A241C; --muted:#6D6151;
+    --faint:#9B8D78; --accent:#B4472F; --accent2:#8C3322;
+    --wash:#EFE3D2; --line:#D8C9B2; --card:#F8F1E3;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{font-family:"SimSun","Songti SC",serif;font-size:9.6pt;line-height:1.55;}
+  h1,h2,h3,h4,.sans{font-family:"Noto Sans SC","Hei",sans-serif;}
+  p{margin:0 0 5.5px;text-align:justify;}
+  a{color:var(--accent2);text-decoration:none;}
+  .cover{position:relative;height:258mm;display:flex;flex-direction:column;justify-content:space-between;
+    padding:6mm 2mm 2mm;break-after:page;}
+  .brand{font-family:"Noto Sans SC",sans-serif;font-size:9pt;letter-spacing:.42em;color:var(--accent);}
+  .cover h1{font-size:42pt;line-height:1.16;margin:16mm 0 4mm;font-weight:700;letter-spacing:.02em;}
+  .cover .sub{font-size:15pt;color:var(--muted);margin:0 0 3mm;}
+  .cover .claim{font-size:11pt;line-height:1.9;max-width:125mm;color:var(--ink);}
+  .cover .rule{height:1px;background:var(--ink);opacity:.5;margin:8mm 0 4mm;}
+  .cover .meta{font-family:"Noto Sans SC",sans-serif;font-size:9pt;color:var(--muted);line-height:2;}
+  .cover .seal{width:15mm;height:15mm;border:1.2pt solid var(--accent);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-size:18pt;font-family:"SimSun",serif;
+    margin-top:7mm;transform:rotate(-2deg);}
+  .cover .pet{position:absolute;right:8mm;bottom:26mm;width:40mm;opacity:.96;}
+  .page{break-before:page;}
+  .kicker{font-family:"Noto Sans SC",sans-serif;font-size:8.4pt;letter-spacing:.22em;color:var(--accent);margin:0 0 2mm;}
+  h2{font-size:19pt;line-height:1.3;margin:0 0 2mm;font-weight:700;}
+  h2 .num{color:var(--faint);font-weight:400;margin-right:3mm;}
+  .lead{font-size:10.6pt;color:var(--muted);margin:0 0 4mm;}
+  h3{font-size:12pt;margin:4.2mm 0 1.4mm;font-weight:700;}
+  h4{font-size:10.6pt;margin:3.5mm 0 1.2mm;font-weight:700;}
+  .hr{height:1px;background:var(--line);margin:4mm 0;}
+  .say{background:var(--wash);border-left:2.2pt solid var(--accent);padding:3.2mm 4.5mm;margin:3.6mm 0;
+    break-inside:avoid;}
+  .say b{font-family:"Noto Sans SC",sans-serif;font-size:8.4pt;letter-spacing:.18em;color:var(--accent);display:block;margin-bottom:1.5mm;}
+  .say p{margin:0;font-size:10pt;}
+  .note{border:1px solid var(--line);background:var(--card);padding:3mm 4mm;margin:3mm 0;break-inside:avoid;}
+  .note p{margin:0 0 4px;}
+  .note p:last-child{margin:0;}
+  .warn{border-left:2.2pt solid var(--accent2);background:#F6E7DE;padding:3.5mm 4.5mm;margin:4mm 0;break-inside:avoid;}
+  thead{display:table-header-group;}
+  table{width:100%;border-collapse:collapse;margin:2mm 0 3mm;font-size:8.5pt;line-height:1.42;}
+  th{background:var(--wash);font-family:"Noto Sans SC",sans-serif;font-weight:700;font-size:8pt;
+    letter-spacing:.04em;text-align:left;padding:1.9mm 2mm;border-bottom:1px solid var(--line);}
+  td{padding:1.6mm 1.9mm;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr{break-inside:avoid;}
+  td.k{font-family:"Noto Sans SC",sans-serif;font-weight:700;white-space:nowrap;}
+  .small{font-size:8.7pt;color:var(--muted);line-height:1.55;}
+  .tiny{font-size:8pt;color:var(--faint);line-height:1.5;}
+  .tag{display:inline-block;font-family:"Noto Sans SC",sans-serif;font-size:7.6pt;letter-spacing:.08em;
+    color:var(--accent2);border:1px solid var(--accent);padding:0.4mm 1.6mm;margin-right:1.5mm;}
+  ul,ol{margin:1mm 0 3.5mm;padding-left:5mm;}
+  li{margin:0 0 1.1mm;}
+  .tight li{margin:0 0 0.4mm;}
+  .step{display:flex;gap:5mm;margin:3.2mm 0;break-inside:avoid;}
+  .step .n{flex:0 0 8mm;height:8mm;border:1.2pt solid var(--accent);color:var(--accent);
+    font-family:"Noto Sans SC",sans-serif;font-weight:700;font-size:12pt;display:flex;
+    align-items:center;justify-content:center;border-radius:50%;}
+  .step .body{flex:1;min-width:0;}
+  .step h4{margin:0 0 1mm;}
+  .phone{width:43mm;border:1px solid var(--line);background:#fff;display:block;}
+  .fig{flex:0 0 43mm;}
+  figcaption{font-size:7.8pt;color:var(--faint);margin-top:1mm;line-height:1.4;}
+  .row{display:flex;gap:6mm;align-items:flex-start;}
+  .row .txt{flex:1;min-width:0;}
+  .q{font-family:"Noto Sans SC",sans-serif;font-weight:700;font-size:9.5pt;margin:2.6mm 0 0.6mm;}
+  .q .n{color:var(--accent);margin-right:1.2mm;}
+  .a{margin:0 0 0.8mm;}
+  .check{list-style:none;padding-left:0;}
+  .check li{padding-left:6mm;position:relative;margin:0 0 1.6mm;}
+  .check li:before{content:"□";position:absolute;left:0;color:var(--accent);font-size:11pt;line-height:1.2;}
+  .big{font-size:13pt;line-height:1.6;}
+  .avoid{break-inside:avoid;}
+</style>
+</head>
+<body>
+
+<!-- 1 封面 -->
+<section class="cover">
+  <div>
+    <div class="brand">谛 听 · D I T I N G</div>
+    <h1>使用手册</h1>
+    <p class="sub">一块只听你的石头，从开机到第一篇</p>
+    <div class="rule"></div>
+    <p class="claim">它没有屏幕，只有一颗灯。<br>
+      白天，把你说过的话压成三栏；夜里，用你的原话写一篇志怪小说。<br>
+      原文一个字不改，七天之后自动清掉。</p>
+  </div>
+  <img class="pet" src="file:///home/murdo_klein/hackthon/AI+culture/docs/screens/pet.png" alt="石兽">
+  <div>
+    <div class="seal">听</div>
+    <div class="meta">
+      版本 0.4 · 2026-11-07 · Android<br>
+      适用：比赛原型 / 内部试用，不是量产成品<br>
+      仓库：github.com/RUI-debug769/diting（Apache-2.0）<br>
+      安装包：Releases → v0.4.0 → diting.apk
+    </div>
+  </div>
+</section>
+
+<!-- 2 认识 -->
+<section class="page">
+  <p class="kicker">00 · 先用 30 秒认识它</p>
+  <h2>它不是录音笔，是一本只记你的账</h2>
+  <p class="lead">你说话，它听；只记你的声音，只留文字，只留七天。</p>
+
+  <div class="row">
+    <div class="txt">
+      <p><b>它做什么。</b>板子一直开着，听见周围所有人说话，但只用声纹认你一个人。你说的话被切成句子、转成文字，落到手机里。白天，同一天的原话被压成三栏：<b>需你留意、待办、事实</b>。晚上，同一批原话被写成一篇第一人称短篇——不是总结，是小说。</p>
+      <p><b>它不做什么。</b>不聊天、不回答、不主动找你、不存音频、不导出、不做第二个人。它只做一件事：替你把话记住，再换个方式讲回给你。</p>
+      <p><b>你需要准备。</b>一台 Android 8.0 以上的手机；一套板子与外壳；一个能上网的 2.4G WiFi（或手机热点）；一个 DeepSeek API Key；USB 供电或一节 18650 电池。</p>
+    </div>
+    <figure class="fig">
+      <img class="phone" src="file:///home/murdo_klein/hackthon/AI+culture/docs/screens/main-light.png" alt="主屏">
+      <figcaption>主屏：三栏、原话句数、底部「让它写」。</figcaption>
+    </figure>
+  </div>
+
+  <h3>三十秒流程</h3>
+  <table>
+    <tr><th style="width:8mm">#</th><th style="width:34mm">动作</th><th>看到什么算成功</th></tr>
+    <tr><td>1</td><td class="k">装 App</td><td>桌面出现「谛听」，打开不是白屏。</td></tr>
+    <tr><td>2</td><td class="k">板子上电</td><td>灯开始慢慢呼吸；板子不烫。</td></tr>
+    <tr><td>3</td><td class="k">连 WiFi</td><td>板子连上烧录时写进去的那个 2.4G 网络。</td></tr>
+    <tr><td>4</td><td class="k">填云端与 Key</td><td>设置页保存后，主屏显示「谛听在线，正在听」。</td></tr>
+    <tr><td>5</td><td class="k">录声纹</td><td>设置页显示「已录好：只有你的声音会被记。」</td></tr>
+    <tr><td>6</td><td class="k">说一句</td><td>两三秒后，主屏「今日原话」多一句。</td></tr>
+  </table>
+
+  <div class="warn">
+    <p><b>先把丑话说在前面：这是原型，不是成品。</b>板子的 WiFi 名和密码在烧录时写死，换网络要重烧固件；云端只有一台 2 核 1.7G 的机器，没有冗余；声音走公网明文 TCP，没有传输加密；目前只在一台小米手机上完整试过。它能把流程跑通，但不能拿去当日常消费产品用。</p>
+  </div>
+</section>
+
+<!-- 3 第一次上 -->
+<section class="page">
+  <p class="kicker">01 · 第一次使用（上）</p>
+  <h2>装好，通电，连上网</h2>
+  <p class="lead">前三步最容易卡住。按顺序来，别跳。</p>
+
+  <div class="step">
+    <div class="n">1</div>
+    <div class="body">
+      <h4>装 App</h4>
+      <p>打开 <b>github.com/RUI-debug769/diting/releases/tag/v0.4.0</b>，下载 <b>diting.apk</b>（约 234 KB）。手机允许「安装未知来源应用」后安装。系统要求 Android 8.0 以上。</p>
+      <p class="small">如果手机里装过更早的 v0.1.0，先卸载再装——旧版和新版可能签名不同，直接覆盖可能失败。卸载会清掉旧记录。小米若提示 <span class="tag">INSTALL_FAILED_USER_RESTRICTED</span>，用数据线连电脑执行：<br><b>adb install -r -i com.android.vending diting.apk</b></p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">2</div>
+    <div class="body">
+      <h4>给板子上电</h4>
+      <p>用 USB 供电，或装一节 18650 电池（外壳后盖里横放）。上电后板载灯开始呼吸，表示固件在跑。板子没有屏幕、没有喇叭；声音默认从手机出，外接喇叭是可选件。</p>
+      <p class="small">第一次用建议插着 USB：配网、录声纹、连续推流都费电；18650 没充满时，推流会掉。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">3</div>
+    <div class="body">
+      <h4>连 WiFi（这一版最关键的坑）</h4>
+      <p>这一版固件把 <b>WiFi 名和密码编译在固件里</b>，板子只认烧录时写进去的那个网络。你要做的不是「在 App 里改」，而是：<b>让板子连上和固件一致的那个 2.4G WiFi / 手机热点</b>。</p>
+      <p>手机热点请开 <b>2.4GHz</b>，不要开 5GHz；名字和密码必须和固件里完全一致（大小写、空格都算）。热点没有外网时，板子连上也到不了云端，主屏会一直「没连上」。</p>
+    </div>
+  </div>
+
+  <div class="warn">
+    <p><b>不要点设置里的「发给板子」。</b>这个入口是实验性的：填错名字或密码，板子会掉线，只能用 USB 重新烧固件才能救回来。演示前尤其不要试。要换网络，找做固件的人重烧，不要在现场赌。</p>
+  </div>
+
+  <div class="row" style="margin-top:4mm">
+    <div class="txt">
+      <h3>怎么确认板子在线</h3>
+      <ul class="tight">
+        <li>板子灯在呼吸，不是全灭。</li>
+        <li>手机能上网；云端地址和端口没填错。</li>
+        <li>主屏顶部显示「谛听在线，正在听」，不是「谛听没连上」。</li>
+        <li>说一句，两三秒内「今日原话」加一；没有就去看第 7 页。</li>
+      </ul>
+      <p class="small">板子推流约 31 KB/s（16k、16bit、单声道、每 40ms 一片）。连着却一直没字，通常是云端或声纹的问题，不是板子没听见。</p>
+    </div>
+    <figure class="fig">
+      <img class="phone" src="file:///home/murdo_klein/hackthon/AI+culture/docs/screens/settings.png" alt="设置页">
+      <figcaption>设置页：时段、自动写、声纹、WiFi、云端、模型。</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 4 第一次下 -->
+<section class="page">
+  <p class="kicker">02 · 第一次使用（下）</p>
+  <h2>填云端，录声音，说第一句</h2>
+  <p class="lead">这一页做完，它才会真正开始记你。</p>
+
+  <div class="step">
+    <div class="n">4</div>
+    <div class="body">
+      <h4>填云端地址</h4>
+      <p>主屏右上角齿轮 →「云端」：地址 <b>112.124.111.67</b>，端口 <b>19002</b>。这是比赛用的自建云；如果你自己部署，改成你的地址。端口改后，注册声纹用的 19003 会自动跟着变成「端口 + 1」。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">5</div>
+    <div class="body">
+      <h4>填 DeepSeek Key</h4>
+      <p>设置 →「模型」：Key 填你的 DeepSeek API Key；模型保持 <b>deepseek-chat</b>；接口保持 <b>https://api.deepseek.com/chat/completions</b>。三栏和文章都要用它；不填 Key，原话还能收到，但三栏和文章出不来。</p>
+      <p class="small">Key 明文存在 App 私有目录里，没有加密。别用公司的主 Key，建议单独建一个限额 Key。没额度时，文章会走「兜底」。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">6</div>
+    <div class="body">
+      <h4>录一次声纹</h4>
+      <p>设置 →「我的声音」→「录一次（说 8 秒）」。找安静地方，离板子正常说话的距离，连续说 8 秒，中间不要停太久。录完显示「已录好：只有你的声音会被记。」</p>
+      <p>最多存 3 个模板，识别时取最高分；再录一次，如果和已有模板相似度低于 0.5，会被拒绝覆盖。也可以点「用板子的麦克风」，对着板子说 8 秒，适合手机不在手边时。</p>
+      <p class="small">阈值是 0.48。主人一句实测 0.661；BGM、旁人声音可能落在 0.51–0.59，所以它偶尔会「多记一句」。这是单模板声纹的折中，不是 bug。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n">7</div>
+    <div class="body">
+      <h4>说第一句</h4>
+      <p>对板子说：「记一下，明天下午三点和张老师开会。」等两三秒。主屏「今日原话」出现这一句，就说明整条链路通了。然后点「让它写」，等几分钟，看它写出第一篇。</p>
+      <p class="small">如果主屏底部出现「刚才那句不是你的声音（0.19），没记。」，说明声纹没过。重新录一次，或离板子近一点、背景安静一点。</p>
+    </div>
+  </div>
+
+  <div class="say">
+    <b>第一次成功的标准</b>
+    <p>不是「App 装上了」，而是：板子在呼吸、主屏显示在线、你说一句它落一句、点「让它写」能出一篇带「篇名」的文章。四件事都成立，再拿去演示。</p>
+  </div>
+</section>
+
+<!-- 5 每天 -->
+<section class="page">
+  <p class="kicker">03 · 每天怎么用</p>
+  <h2>白天看三栏，晚上看一篇</h2>
+  <p class="lead">只要 App 还在后台连着云端，它自己记；你只需要在想看的时候看。</p>
+
+  <h3>灯在说什么</h3>
+  <table>
+    <tr><th style="width:28mm">灯</th><th style="width:36mm">意思</th><th>你该做什么</th></tr>
+    <tr><td class="k">慢慢呼吸（约 2.4 秒）</td><td>在线，待机</td><td>不用管。</td></tr>
+    <tr><td class="k">快一点（约 0.9 秒）</td><td>正在听，跟环境音量走</td><td>正常说话即可。</td></tr>
+    <tr><td class="k">两次短跳</td><td>听见别人说话</td><td>正常，它不会记。</td></tr>
+    <tr><td class="k">急闪三下</td><td>这句被否定（不是主人）</td><td>看一眼 App 底部的提示。</td></tr>
+    <tr><td class="k">5 秒慢呼吸</td><td>夜间书写中</td><td>等，或点正文跳过动画。</td></tr>
+    <tr><td class="k">全灭</td><td>没连上 WiFi / 云端</td><td>先查供电，再查热点和云端。</td></tr>
+  </table>
+  <p class="tiny">灯语是设计规格；这一版固件只落地了部分节律。判断状态以 App 顶部文字为准，别只靠灯。</p>
+
+  <div class="row" style="margin-top:3mm">
+    <figure class="fig">
+      <img class="phone" src="file:///home/murdo_klein/hackthon/AI+culture/docs/screens/streaming.png" alt="整理中">
+      <figcaption>三栏生成中：底部按钮变成「它在整理…」。</figcaption>
+    </figure>
+    <div class="txt">
+      <h3>「记」页</h3>
+      <ul class="tight">
+        <li>顶部是日期；点日期打开日历，有圆点的日子有记录，点一天就翻过去。</li>
+        <li>三张卡：<b>需你留意</b>（不一致、反复提但没结论的事）、<b>待办</b>、<b>事实</b>。没有内容的卡不显示。</li>
+        <li>「今日原话 · N 句」点「展开」看原文；原文不改，错字也留着。</li>
+        <li>底部按钮：平时「让它写」；三栏生成中「它在整理…」；旧日期「回到今天」。</li>
+        <li>底部一行小字会告诉你刚才为什么没记，例如「不是你的声音（0.19）」。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>「写」页</h3>
+  <p>点顶部「写」切过去：上面是当天文章，下面是历史文章列表。没有文章时显示「那一天没有说话。石兽听了一夜的风，没有可讲的事。」</p>
+  <ul class="tight">
+    <li>点「让它写」，它会用当天原话写一篇 700–3500 字的短篇；素材越多，篇幅区间越高。</li>
+    <li>写作时正文按 <b>80ms 一个字</b> 出现——是故意放慢，不是网慢。点正文可以一次显示完。</li>
+    <li>读完想换一版，点「重写」；会覆盖当天这一篇。</li>
+    <li>文章只许用当天原话里的真实人、数字、地点、约定；环境可以写，事实不许新增。</li>
+  </ul>
+
+
+</section>
+
+<!-- 6 设置 -->
+<section class="page">
+  <p class="kicker">04 · 设置逐项</p>
+  <h2>每个开关是干什么的</h2>
+  <p class="lead">大部分时候不用改。改之前先看「建议」一列。</p>
+
+  <table>
+    <tr><th style="width:30mm">分组</th><th style="width:34mm">项目</th><th>作用</th><th style="width:38mm">建议</th></tr>
+    <tr><td class="k" rowspan="2">板子什么时候记</td><td>开始 / 结束</td><td>只有在这个时段里，云端才处理板子推来的声音；时段外直接丢掉，不认人、不转字、不落盘。</td><td>保持 00:00 到 00:00 = 全天。演示时别设窄。</td></tr>
+    <tr><td>时段说明</td><td>显示「现在在时段里 / 时段外」。</td><td>改完点保存才生效。</td></tr>
+    <tr><td class="k">自动写</td><td>每天 19:39</td><td>到点自动写当天文章，写完发通知。</td><td>手机要开机、联网、关掉省电限制；演示前确认通知权限。</td></tr>
+    <tr><td class="k">外观</td><td>深色 / 声音</td><td>日纸 / 夜纸两套色；声音是手机合成的「石头和木头」声，不是人声。</td><td>演示用浅色更上镜；声音可关，关了只剩灯。</td></tr>
+    <tr><td class="k" rowspan="3">我的声音</td><td>录一次（说 8 秒）</td><td>用手机麦克风录主人声纹，推到云端。</td><td>安静、正常距离、连续说；录完看状态字。</td></tr>
+    <tr><td>用板子的麦克风</td><td>让板子录 8 秒，适合手机不在手边。</td><td>板子必须在线；说完等它回。</td></tr>
+    <tr><td>删掉已录的声音</td><td>清空云端声纹模板。</td><td>删完谁说话都不会被记，要重录。</td></tr>
+    <tr><td class="k">记录</td><td>清空今天的记录</td><td>删掉当天原话、三栏、文章；不可恢复。</td><td>只清今天，不动前六天；演示前清场用。</td></tr>
+    <tr><td class="k" rowspan="3">板子的 WiFi</td><td>名字 / 密码</td><td>填要发给板子的 2.4G 网络。</td><td>这一版实验性，填错会掉线；演示不要用。</td></tr>
+    <tr><td>发给板子</td><td>经云端转给板子，让它重启去连。</td><td>只在明确知道要重烧时用；否则别点。</td></tr>
+    <tr><td>让板子重新配网</td><td>板子开 Diting-Setup 热点（密码 diting1234，192.168.4.1:19004）。</td><td>救援入口；普通使用不需要。</td></tr>
+    <tr><td class="k" rowspan="2">云端</td><td>地址 / 端口</td><td>App 收句子、发控制命令的地址；默认 112.124.111.67:19002。</td><td>比赛环境不用改；自建才改。</td></tr>
+    <tr><td>端口 + 1</td><td>自动作为声纹注册端口（19003）。</td><td>不用手填。</td></tr>
+    <tr><td class="k" rowspan="3">模型</td><td>Key</td><td>DeepSeek API Key，明文存 App 私有目录。</td><td>单独建限额 Key，别用主 Key。</td></tr>
+    <tr><td>模型</td><td>默认 deepseek-chat。</td><td>不要改成推理模型，速度和格式都不合适。</td></tr>
+    <tr><td>接口</td><td>默认 https://api.deepseek.com/chat/completions。</td><td>只有换服务商才改。</td></tr>
+  </table>
+
+<h3>两个容易误解的地方</h3>
+      <p><b>「板子什么时候记」不是录音开关。</b>板子一直在推流；这个时段只决定云端处不处理。时段外，声音到云端就被丢掉，手机里不会留下任何东西。</p>
+      <p><b>「清空今天的记录」不是重置 App。</b>它只删当天那一份；声纹、Key、时段、WiFi 都还在。七天到期是整份删，连文章一起，没有回收站。</p>
+  </div>
+</section>
+
+<!-- 7 隐私与故障 -->
+<section class="page">
+  <p class="kicker">05 · 隐私、边界与故障</p>
+  <h2>声音去了哪里，坏了怎么办</h2>
+  <p class="lead">这一版没有加密，也没有备份。知道边界，才不会在现场被问倒。</p>
+
+  <h3>声音的路线</h3>
+  <p>板子麦克风 → 16k/16bit 单声道、每 40ms 一片、4 字节长度 + PCM → 公网 TCP 到自建云 → VAD 切句 → 声纹认人 → 只把主人的句子转成文字 → 推到手机。手机只存文字，按天存，七天整份删。</p>
+  <ul class="tight">
+    <li><b>音频不落盘。</b>云端在内存里处理完就丢；手机也不存音频，不能回放。</li>
+    <li><b>传输没有加密。</b>PCM 和文字都走明文 TCP；知道地址的人可以在链路上看。开源是为了可查，不是为了安全。</li>
+    <li><b>Key 是明文。</b>DeepSeek Key 存在 App 私有目录；手机 root 后能读到。</li>
+    <li><b>没有备份、没有导出、没有回收站。</b>七天一到，原文、三栏、文章一起删；删了找不回来。</li>
+    <li><b>App 不在线就不补发。</b>手机被杀、断网时，云端不会把句子存起来等它回来。</li>
+  </ul>
+
+  <h3>常见问题</h3>
+  <p class="q"><span class="n">Q1</span>主屏一直「谛听没连上」。</p>
+  <p class="a">按顺序查：板子有没有电、灯是不是全灭；WiFi 是不是 2.4G、名字密码是否和固件一致；云端地址端口对不对；云端那台机器起没起。四项都正常，再重启板子和 App。</p>
+
+  <p class="q"><span class="n">Q2</span>说了，但「今日原话」不增加。</p>
+  <p class="a">先看主屏底部有没有「不是你的声音」——有声纹没过；没有这行，可能是时段外、句子太短（小于 0.25 秒被丢）、背景太吵，或者云端/Key 没通。换安静地方、离板子近一点、把一句话说完整。</p>
+
+  <p class="q"><span class="n">Q3</span>它记了别人的话 / BGM。</p>
+  <p class="a">单模板声纹的已知局限：阈值 0.48 是折中，BGM 可能落在 0.51–0.59。把音箱关小、离板子远一点；或者重录一次声纹。不要承诺「绝对不会记错」。</p>
+
+  <p class="q"><span class="n">Q4</span>文章写着「兜底」。</p>
+  <p class="a">模型没返回：Key 错、额度用完、网络断、超过 5 分钟。检查 Key 和额度，点「重写」。兜底文是安全稿，不会新增事实，但也不是它真正写的那篇。</p>
+
+  <p class="q"><span class="n">Q5</span>19:39 没有自动写。</p>
+  <p class="a">手机当时关机/没网，或者系统省电策略杀掉了定时。打开 App 手动点「让它写」；要稳定，给 App 关掉电池优化，允许精确闹钟和通知。</p>
+
+  <p class="q"><span class="n">Q6</span>装不上 / 提示签名冲突。</p>
+  <p class="a">先卸载旧版 v0.1.0（会清记录），再装 0.4；确认允许未知来源。小米的 <span class="tag">INSTALL_FAILED_USER_RESTRICTED</span> 用第 3 页的 adb 命令。</p>
+
+  <p class="q"><span class="n">Q7</span>改过 WiFi 之后板子失联。</p>
+  <p class="a">这一版的已知坑：填错就掉线，App 救不回来。用 USB 重新烧固件，或者让做固件的同学处理。演示时不要点「发给板子」。</p>
+
+  <p class="q"><span class="n">Q8</span>板子发热 / 电池撑不住。</p>
+  <p class="a">推流 31 KB/s，WiFi 常开，18650 撑不了一整天；演示建议插 USB。外壳无风扇，连续跑几小时会温，但不至于烫手；烫手就断电。</p>
+</section>
+
+<!-- 8 演示清单 -->
+<section class="page">
+  <p class="kicker">06 · 带去演示</p>
+  <h2>上台前 10 分钟，照着打勾</h2>
+  <p class="lead">演示只证明两件事：它只记主人；它能把一天讲回来。其余都是解释。</p>
+
+  <div class="row">
+    <div class="txt">
+      <h3>必查</h3>
+      <ul class="check tight">
+        <li>板子插电或电池满；灯在呼吸。</li>
+        <li>手机热点 2.4G 已开，名字密码和固件一致。</li>
+        <li>App 显示「谛听在线，正在听」。</li>
+        <li>声纹已录；让同伴说一句，确认不记。</li>
+        <li>DeepSeek Key 有效、有额度；三栏能出。</li>
+        <li>当天已有一篇写好的文章，作为断网备份。</li>
+        <li>通知栏干净；关掉自动更新、勿扰模式设好。</li>
+        <li>投屏/转接头试过；字体大到后排能看清。</li>
+        <li>两分钟视频存本地，不依赖网络。</li>
+        <li>设置页版本显示「谛听 0.4 · 2026-11-07」。</li>
+      </ul>
+    </div>
+    <div class="txt">
+      <h3>现场不要做</h3>
+      <ul class="tight">
+        <li><b>不要点「发给板子」。</b>填错就掉线，只能重烧。</li>
+        <li><b>不要清空记录。</b>清完当天文章也没了，没东西可演。</li>
+        <li><b>不要说「声音不出手机」。</b>声音出手机、上公网、到自建云；正确说法是「只到我们自己的服务器，内存处理完就丢」。</li>
+        <li><b>不要承诺板子会出声。</b>板上没有喇叭；要外接 4Ω 1–3W 喇叭，演示默认用手机声。</li>
+        <li><b>不要承诺「绝不记错」。</b>BGM 和相似人声可能误过，这是已知局限。</li>
+        <li><b>不要现场改 WiFi / 重烧固件。</b>留到后台。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>如果当场翻车，怎么说</h3>
+  <table>
+    <tr><th style="width:42mm">现象</th><th>一句话</th><th style="width:50mm">接下来做什么</th></tr>
+    <tr><td class="k">板子没连上</td><td>「它现在没连上网，我先用昨天写好的这篇给你们看。」</td><td>切到写页，打开备份文章；不要现场调网。</td></tr>
+    <tr><td class="k">说了不记</td><td>「声纹没过，它宁可漏记也不乱记。」</td><td>靠近、重复一句；或展示底部拒绝提示。</td></tr>
+    <tr><td class="k">三栏出不来</td><td>「模型这边慢了，原话还在，三栏是后处理的。」</td><td>展开原话；讲三栏规则，不硬等。</td></tr>
+    <tr><td class="k">文章兜底</td><td>「这是兜底稿，模型刚才没回来；我重新写一次。」</td><td>点重写；若还失败，讲兜底策略。</td></tr>
+    <tr><td class="k">被问隐私</td><td>「明文 TCP、只到自建云、音频不落盘、文字七天删；这一版没加密，我们没藏。」</td><td>指向 README 的隐私段。</td></tr>
+  </table>
+
+  <div class="say">
+    <b>一句话收尾</b>
+    <p>「它不是替你记录世界，是替你把你自己说回来的话记住。听得见所有人，账本里只有你。」</p>
+  </div>
+
+  <div class="hr"></div>
+  <p class="small"><b>链接</b>　仓库 github.com/RUI-debug769/diting　·　安装包 github.com/RUI-debug769/diting/releases/tag/v0.4.0　·　对接手册《谛听-答辩与设计对接.pdf》　·　云端/固件细节见 docs/云端声纹链路.md、docs/挂坠固件-推流.md</p>
+  <p class="tiny">本手册对应 0.4（2026-11-07）。产品仍在原型阶段，功能与界面可能随版本变化；以仓库 README 和 Release 说明为准。</p>
+</section>
+
+</body>
+</html>
