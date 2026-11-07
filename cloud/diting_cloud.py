@@ -208,6 +208,7 @@ class Event:
     duration: float
     accepted: bool
     lang: str = ""
+    noise: bool = False
 
     def to_json(self) -> str:
         return json.dumps(
@@ -280,6 +281,7 @@ class Pipeline:
             duration=duration,
             accepted=(speaker == self.prints.OWNER) and not noise,
             lang=self._asr_lang,
+            noise=noise,
         )
 
     async def process_async(self, samples: np.ndarray) -> Event:
@@ -410,6 +412,21 @@ class Server:
             self.board_writer = None
             return False
 
+    def _sound(self, event: Event) -> None:
+        """让挂坠出声。判定就发生在这里，所以它和手机收到事件是同一刻。
+
+        板子不在线就什么都不做：手机那边知道自己响（App 知道板子在不在）。
+        噪声（BGM/笑声/咳嗽）不算「不是你」，不出声——那不是拒绝，是没听见人话。
+        """
+        if event.accepted:
+            name = "tick"
+        elif event.speaker == "other" and not event.noise:
+            name = "hush"
+        else:
+            return
+        sent = self._to_board({"cmd": "sound", "name": name})
+        log.info("声语 %s → 板子%s", name, "已下发" if sent else "没连上，没发出去")
+
     def _control(self, cmd: dict) -> dict:
         """App 在 19002 上发一行 JSON，云回一行。"""
         name = str(cmd.get("cmd", ""))
@@ -452,6 +469,14 @@ class Server:
             log.info("App 要用板子的麦克风录声纹（30 秒内有效）")
             return {"type": "ack", "ok": True,
                     "message": "好，现在对着板子说 8 秒，说完等一下"}
+        if name == "sound":
+            which = str(cmd.get("name") or "tick")
+            if which not in ("tick", "hush"):
+                which = "tick"
+            if not self._to_board({"cmd": "sound", "name": which}):
+                return {"type": "ack", "ok": False, "message": "板子没连着云端"}
+            log.info("App 试听声语 %s", which)
+            return {"type": "ack", "ok": True, "message": "响了一声：" + which}
         if name == "status":
             return {"type": "ack", "ok": True, **self._status()}
         return {"type": "ack", "ok": False, "message": "不认识的命令"}
@@ -562,6 +587,7 @@ class Server:
             assert self.pipeline
             event = await self.pipeline.process_async(samples)
             self.hub.publish(event)
+            self._sound(event)
 
     # -- 注册声纹：App 把一段自己的声音推上来（同样的帧格式，推完就关）
     async def handle_enroll(self, reader, writer) -> None:
