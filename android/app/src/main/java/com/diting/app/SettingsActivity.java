@@ -32,13 +32,12 @@ import java.util.Locale;
 public class SettingsActivity extends Activity {
 
 
-    /** 圆角底：主屏的卡片和这里的输入框、按钮共用一个形状语言。 */
+    /** 一块浅浅的纸：不再画边框，靠底色和留白分开。 */
     private android.graphics.drawable.GradientDrawable round(int fill, int radiusDp) {
         android.graphics.drawable.GradientDrawable g =
                 new android.graphics.drawable.GradientDrawable();
         g.setColor(fill);
         g.setCornerRadius(dp(radiusDp));
-        g.setStroke(dp(1), Theme.BORDER);
         return g;
     }
 
@@ -79,11 +78,11 @@ public class SettingsActivity extends Activity {
         autoAt = store.autoAt();
 
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(Theme.BG);
+        scroll.setBackground(Theme.paper());
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(18), dp(18), dp(18), dp(28));
+        root.setPadding(dp(24), dp(20), dp(24), dp(32));
 
         getWindow().setStatusBarColor(Theme.BG);
         View decor0 = getWindow().getDecorView();
@@ -108,6 +107,8 @@ public class SettingsActivity extends Activity {
 
         root.addView(group("外观"));
         root.addView(themeRow());
+        root.addView(soundRow());
+        root.addView(small("石头和木头的声音。关掉就只剩灯。"));
 
         root.addView(group("我的声音"));
         voiceState = small("正在问云端…");
@@ -178,11 +179,20 @@ public class SettingsActivity extends Activity {
         reply = small(" ");
         root.addView(reply);
 
-        root.addView(iconButton(Icons.CHECK, "保存并返回", new View.OnClickListener() {
+        root.addView(bigButton("保 存 并 返 回", new View.OnClickListener() {
             @Override public void onClick(View v) {
                 save();
             }
         }));
+
+        // 装到手机上的是不是这一版，看这一行最直接。
+        TextView version = new TextView(this);
+        version.setText("谛听 0.4 · 2026-11-07");
+        version.setTextColor(Theme.FAINT);
+        version.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        version.setGravity(Gravity.CENTER);
+        version.setPadding(0, dp(20), 0, 0);
+        root.addView(version);
 
         scroll.addView(root);
         setContentView(scroll);
@@ -212,34 +222,44 @@ public class SettingsActivity extends Activity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, 0, 0, dp(6));
 
-        TextView title = new TextView(this);
-        title.setText("设置");
-        title.setTextColor(Theme.INK);
-        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
-        title.setTypeface(android.graphics.Typeface.create("serif",
-                android.graphics.Typeface.NORMAL));
-        row.addView(title, new LinearLayout.LayoutParams(0,
-                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-
         IconView back = new IconView(this, Icons.BACK).tint(Theme.FAINT).size(20);
-        back.setPadding(dp(10), dp(6), dp(2), dp(6));
+        back.setPadding(dp(2), dp(6), dp(14), dp(6));
         back.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 save();
             }
         });
         row.addView(back);
+
+        TextView title = new TextView(this);
+        title.setText("设置");
+        title.setTextColor(Theme.INK);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
+        title.setTypeface(android.graphics.Typeface.create("serif",
+                android.graphics.Typeface.NORMAL));
+        row.addView(title, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
         return row;
     }
 
     private View group(String text) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(30), 0, dp(10));
+
+        View mark = new View(this);
+        mark.setBackgroundColor(Theme.ACCENT);
+        row.addView(mark, new LinearLayout.LayoutParams(dp(14), dp(1)));
+
         TextView v = new TextView(this);
-        v.setText(text);
+        v.setText("  " + text);
         v.setTextColor(Theme.MUTED);
         v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
-        v.setLetterSpacing(0.18f);
-        v.setPadding(0, dp(26), 0, dp(10));
-        return v;
+        v.setLetterSpacing(0.2f);
+        row.addView(v);
+        return row;
     }
 
     private TextView label(String text) {
@@ -276,10 +296,10 @@ public class SettingsActivity extends Activity {
         autoView = new TextView(this);
         autoView.setText(isTime(autoAt) ? autoAt : "关");
         autoView.setTextColor(Theme.INK);
-        autoView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
+        autoView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
         autoView.setGravity(Gravity.CENTER);
-        autoView.setPadding(dp(12), dp(12), dp(12), dp(12));
-        autoView.setBackground(round(Theme.CARD, 14));
+        autoView.setPadding(dp(12), dp(16), dp(12), dp(16));
+        autoView.setBackground(round(Theme.WASH, 3));
         autoView.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 pickAuto();
@@ -302,7 +322,7 @@ public class SettingsActivity extends Activity {
     private void confirmClear() {
         new AlertDialog.Builder(this)
                 .setTitle("清空今天？")
-                .setMessage("今天的原话和三栏判断都会删掉，删了找不回来。")
+                .setMessage("今天的原话、三栏判断和那一篇文章都会删掉，删了找不回来。")
                 .setNegativeButton("算了", null)
                 .setPositiveButton("清空", new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface d, int w) {
@@ -323,7 +343,7 @@ public class SettingsActivity extends Activity {
         input.setSingleLine(true);
         input.setTextColor(Theme.INK);
         input.setHintTextColor(Theme.FAINT);
-        input.setBackgroundColor(Theme.CARD);
+        input.setBackgroundColor(Theme.WASH);
         input.setPadding(dp(12), dp(12), dp(12), dp(12));
 
         new AlertDialog.Builder(this)
@@ -340,7 +360,7 @@ public class SettingsActivity extends Activity {
                         store.setAutoAt(v);
                         AutoWrite.reschedule(SettingsActivity.this);
                         refreshAuto();
-                        say("每天 " + v + " 自动写。");
+                        say("每天 " + v + " 自动写三栏和那一篇小说。");
                     }
                 })
                 .setNeutralButton("关掉", new DialogInterface.OnClickListener() {
@@ -364,8 +384,8 @@ public class SettingsActivity extends Activity {
         autoView.setText(on ? autoAt : "关");
         if (autoHint != null) {
             autoHint.setText(on
-                    ? "到点会自己写一遍，写完发条通知；手机锁着也会写。"
-                    : "点上面那个「关」，定一个时间就会每天自动写。");
+                    ? "到点会自己写好三栏和那一篇，写完发条通知；手机锁着也会写。"
+                    : "点上面那个「关」，定一个时间就会每天自动写三栏和那一篇。");
         }
     }
 
@@ -396,12 +416,12 @@ public class SettingsActivity extends Activity {
         TextView v = new TextView(this);
         v.setText(value);
         v.setTextColor(Theme.INK);
-        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        v.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
         v.setTypeface(android.graphics.Typeface.create("serif",
                 android.graphics.Typeface.NORMAL));
         v.setGravity(Gravity.CENTER);
-        v.setBackground(round(Theme.CARD, 14));
-        v.setPadding(0, dp(14), 0, dp(14));
+        v.setBackground(round(Theme.WASH, 3));
+        v.setPadding(0, dp(18), 0, dp(18));
         v.setTag(value);
         v.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
@@ -419,75 +439,69 @@ public class SettingsActivity extends Activity {
         e.setHintTextColor(Theme.FAINT);
         e.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
         e.setSingleLine(true);
-        e.setBackground(round(Theme.CARD, 12));
-        e.setPadding(dp(14), dp(14), dp(14), dp(14));
+        e.setBackground(round(Theme.WASH, 3));
+        e.setPadding(dp(13), dp(12), dp(13), dp(12));
         return e;
     }
 
-    /** 一行按钮：左边图标，右边短标签。设置页尽量用图形代替长句子。 */
-    private View iconButton(int icon, String text, View.OnClickListener l) {
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.HORIZONTAL);
-        box.setGravity(Gravity.CENTER);
-        box.setPadding(dp(16), dp(13), dp(16), dp(13));
-        box.setBackground(round(Theme.CARD, 26));
+    /** 一行：左边图标，右边短标签，末尾一道细线。设置页用行代替按钮。 */
+    private View iconButton(int icon, String text, final View.OnClickListener l) {
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.VERTICAL);
 
-        box.addView(new IconView(this, icon).tint(Theme.ACCENT).size(18));
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(14), 0, dp(14));
+        row.addView(new IconView(this, icon).tint(Theme.ACCENT).size(17));
 
         TextView t = new TextView(this);
         t.setText(text);
         t.setTextColor(Theme.INK);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        t.setPadding(dp(10), 0, 0, 0);
-        box.addView(t);
-
-        box.setOnClickListener(l);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p.setMargins(0, dp(5), 0, dp(5));
-        box.setLayoutParams(p);
-        return box;
-    }
-
-    /** 一个开关：深色 ↔ 浅色。点一下就整页换，设置里也只留这一个按钮。 */
-    private View themeRow() {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(16), dp(13), dp(16), dp(13));
-        row.setBackground(round(Theme.CARD, 26));
-
-        boolean dark = Theme.mode == Theme.DARK;
-        row.addView(new IconView(this, dark ? Icons.MOON : Icons.SUN)
-                .tint(Theme.ACCENT).size(18));
-
-        TextView t = new TextView(this);
-        t.setText(dark ? "深色" : "浅色");
-        t.setTextColor(Theme.INK);
-        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        t.setPadding(dp(10), 0, 0, 0);
+        t.setPadding(dp(12), 0, dp(8), 0);
         row.addView(t, new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-        // 右边一个小胶囊：深色时是左边暗，浅色时滑到右边
-        FrameLayout capsule = new FrameLayout(this);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setCornerRadius(dp(11));
-        bg.setColor(Theme.mode == Theme.DARK ? Theme.BORDER : Theme.ACCENT);
-        capsule.setBackground(bg);
-        View knob = new View(this);
-        GradientDrawable kg = new GradientDrawable();
-        kg.setShape(GradientDrawable.OVAL);
-        kg.setColor(Theme.mode == Theme.DARK ? Theme.FAINT : Theme.CARD);
-        knob.setBackground(kg);
-        FrameLayout.LayoutParams kp = new FrameLayout.LayoutParams(dp(18), dp(18));
-        kp.gravity = Gravity.CENTER_VERTICAL
-                | (Theme.mode == Theme.DARK ? Gravity.LEFT : Gravity.RIGHT);
-        kp.leftMargin = dp(3);
-        kp.rightMargin = dp(3);
-        capsule.addView(knob, kp);
-        LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(dp(44), dp(24));
-        row.addView(capsule, cp);
+        IconView chev = new IconView(this, Icons.CHEVRON_R).tint(Theme.FAINT).size(12);
+        row.addView(chev, new LinearLayout.LayoutParams(dp(20), dp(20)));
+
+        row.setOnClickListener(l);
+        wrap.addView(row);
+
+        View line = new View(this);
+        line.setBackgroundColor(Theme.BORDER);
+        wrap.addView(line, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(1)));
+        wrap.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        return wrap;
+    }
+
+    /** 一个开关：夜纸 ↔ 日纸。点一下就整页换。 */
+    private View themeRow() {
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(14), 0, dp(14));
+
+        boolean dark = Theme.mode == Theme.DARK;
+        row.addView(new IconView(this, dark ? Icons.MOON : Icons.SUN)
+                .tint(Theme.ACCENT).size(17));
+
+        TextView t = new TextView(this);
+        t.setText(dark ? "深色 · 夜纸" : "浅色 · 日纸");
+        t.setTextColor(Theme.INK);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        t.setPadding(dp(12), 0, 0, 0);
+        row.addView(t, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        // 小方块开关：左日右夜，朱砂块表示现在在哪边。
+        row.addView(capsuleSwitch(dark), new LinearLayout.LayoutParams(dp(40), dp(22)));
 
         row.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -497,24 +511,112 @@ public class SettingsActivity extends Activity {
                 recreate();
             }
         });
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p.setMargins(0, dp(4), 0, dp(6));
-        row.setLayoutParams(p);
-        return row;
+
+        wrap.addView(row);
+        View line = new View(this);
+        line.setBackgroundColor(Theme.BORDER);
+        wrap.addView(line, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(1)));
+        return wrap;
     }
 
-    private Button bigButton(String text, View.OnClickListener l) {
-        Button b = new Button(this);
+    /** 40×22 的小方块开关；knob 用 tag 找回，切换时只挪滑块。 */
+    private FrameLayout capsuleSwitch(boolean on) {
+        FrameLayout capsule = new FrameLayout(this);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(3));
+        bg.setColor(Theme.WASH);
+        capsule.setBackground(bg);
+        View knob = new View(this);
+        GradientDrawable kg = new GradientDrawable();
+        kg.setCornerRadius(dp(2));
+        kg.setColor(Theme.ACCENT);
+        knob.setBackground(kg);
+        knob.setTag("knob");
+        FrameLayout.LayoutParams kp = new FrameLayout.LayoutParams(dp(16), dp(16));
+        kp.gravity = Gravity.CENTER_VERTICAL | (on ? Gravity.RIGHT : Gravity.LEFT);
+        kp.leftMargin = dp(3);
+        kp.rightMargin = dp(3);
+        capsule.addView(knob, kp);
+        return capsule;
+    }
+
+    private void setCapsule(FrameLayout capsule, boolean on) {
+        if (capsule == null) {
+            return;
+        }
+        View knob = capsule.findViewWithTag("knob");
+        if (knob == null) {
+            return;
+        }
+        FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) knob.getLayoutParams();
+        p.gravity = Gravity.CENTER_VERTICAL | (on ? Gravity.RIGHT : Gravity.LEFT);
+        knob.setLayoutParams(p);
+    }
+
+    /** 声语开关：四声器物音。关掉时连 AudioTrack 都不建。 */
+    private View soundRow() {
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(14), 0, dp(14));
+
+        row.addView(new IconView(this, Icons.SOUND).tint(Theme.ACCENT).size(17));
+
+        TextView t = new TextView(this);
+        t.setText("声音");
+        t.setTextColor(Theme.INK);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        t.setPadding(dp(12), 0, 0, 0);
+        row.addView(t, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        final FrameLayout capsule = capsuleSwitch(store.sound());
+        row.addView(capsule, new LinearLayout.LayoutParams(dp(40), dp(22)));
+
+        row.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                boolean next = !store.sound();
+                store.setSound(next);
+                Voice voice = Voice.get(SettingsActivity.this);
+                voice.setEnabled(next);
+                setCapsule(capsule, next);
+                if (next) {
+                    voice.play(Voice.TICK);
+                    say("声音开了。");
+                } else {
+                    say("声音关了，只剩灯。");
+                }
+            }
+        });
+
+        wrap.addView(row);
+        View line = new View(this);
+        line.setBackgroundColor(Theme.BORDER);
+        wrap.addView(line, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(1)));
+        return wrap;
+    }
+
+    /** 一块朱砂色的主按钮：保存这类动作只留这一种。 */
+    private View bigButton(String text, View.OnClickListener l) {
+        TextView b = new TextView(this);
         b.setText(text);
-        b.setAllCaps(false);
         b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        b.setTextColor(Theme.INK);
-        b.setBackground(round(Theme.CARD, 26));
+        b.setLetterSpacing(0.2f);
+        b.setTextColor(Theme.ON_ACCENT);
+        b.setGravity(Gravity.CENTER);
+        GradientDrawable g = new GradientDrawable();
+        g.setColor(Theme.ACCENT);
+        g.setCornerRadius(dp(3));
+        b.setBackground(g);
         b.setOnClickListener(l);
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p.setMargins(0, dp(5), 0, dp(5));
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(52));
+        p.setMargins(0, dp(18), 0, dp(8));
         b.setLayoutParams(p);
         return b;
     }
@@ -529,7 +631,7 @@ public class SettingsActivity extends Activity {
         input.setSingleLine(true);
         input.setTextColor(Theme.INK);
         input.setHintTextColor(Theme.FAINT);
-        input.setBackgroundColor(Theme.CARD);
+        input.setBackgroundColor(Theme.WASH);
         input.setPadding(dp(12), dp(12), dp(12), dp(12));
 
         new AlertDialog.Builder(this)

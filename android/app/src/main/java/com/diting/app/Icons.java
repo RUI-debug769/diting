@@ -32,6 +32,7 @@ public final class Icons {
     public static final int CHEVRON_R = 17;
     public static final int GEAR = 18;
     public static final int CONTRAST = 19;
+    public static final int SOUND = 20;
 
     private Icons() {
     }
@@ -215,6 +216,21 @@ public final class Icons {
             case CHEVRON_R:
                 c.drawLine(9f, 5.5f, 15.5f, 12f, p);
                 c.drawLine(15.5f, 12f, 9f, 18.5f, p);
+                break;
+
+            case SOUND:
+                // 一只小喇叭 + 两道弧：出声，不是「语音助手」。
+                Path sp = new Path();
+                sp.moveTo(4f, 9.5f);
+                sp.lineTo(7.5f, 9.5f);
+                sp.lineTo(11.5f, 5.5f);
+                sp.lineTo(11.5f, 18.5f);
+                sp.lineTo(7.5f, 14.5f);
+                sp.lineTo(4f, 14.5f);
+                sp.close();
+                c.drawPath(sp, p);
+                c.drawArc(new RectF(12.5f, 8.5f, 17f, 15.5f), -55, 110, false, p);
+                c.drawArc(new RectF(12.5f, 5.5f, 20.5f, 18.5f), -55, 110, false, p);
                 break;
 
             default:

@@ -16,7 +16,7 @@ import android.view.View;
  *
  *   IDLE     待机            呼吸、每四秒眨眼
  *   SLEEP    三分钟没人理     闭眼、呼吸变慢、右上角冒 zzz
- *   OFFLINE  云端/挂坠断了     耳朵耷下、闭眼、身子沉一格
+ *   OFFLINE  云端/谛听断了     耳朵耷下、闭眼、身子沉一格
  *   LISTEN   收到一句话        耳朵竖起、身子抬一下
  *   ACCEPT   这句是你的，记了  眯眼笑、点一下头
  *   REJECT   这句不是你的     闭眼摇头（左右晃一格）
@@ -281,7 +281,7 @@ public class PetView extends View {
         onPoke = l;
     }
 
-    /** 云端或挂坠的连线状态：断了就一直耷拉着。 */
+    /** 云端或谛听的连线状态：断了就一直耷拉着。 */
     public void setOnline(boolean on) {
         if (online == on) {
             return;
@@ -382,6 +382,8 @@ public class PetView extends View {
         int shake = 0;
         int dots = 0;      // 正在想：1..3 个点
         int zzz = 0;       // 睡着了：右上角冒的字
+        boolean paper = false;   // 正在写：身前铺一张纸
+        int ink = 0;       // 纸上已经落了几笔
 
         switch (state) {
             case SLEEP:
@@ -418,6 +420,10 @@ public class PetView extends View {
 
             case TYPE:
                 frame = ((now / 280) % 2 == 0) ? F_WRITE : F_WRITE2;
+                // 身子往左让一格，像伏到纸上；纸上的字一笔一笔多起来
+                shake = -1;
+                paper = true;
+                ink = 1 + (int) ((now / 300) % 3);
                 break;
 
             case DONE:
@@ -480,6 +486,23 @@ public class PetView extends View {
         }
 
         // 想：右上角三个点
+        if (paper) {
+            // 一张小纸：米白底，深色笔迹一笔一笔往上加，写到第三笔再从头来。
+            paint.setColor(0xFFF4ECDC);
+            float l = Math.round(ox + 6.9f * cell);
+            float tp = Math.round(oy + 15.0f * cell);
+            float w = Math.round(6.2f * cell);
+            float h = Math.round(2.8f * cell);
+            c.drawRect(l, tp, l + w, tp + h, paint);
+            paint.setColor(0xFF4A4238);
+            for (int i = 0; i < ink; i++) {
+                float ly = tp + Math.round((0.7f + i * 0.9f) * cell);
+                float lw = (i % 2 == 0 ? 4.0f : 2.8f) * cell;
+                c.drawRect(l + Math.round(0.8f * cell), ly,
+                        l + Math.round(0.8f * cell) + lw, ly + Math.max(1f, Math.round(0.24f * cell)), paint);
+            }
+        }
+
         if (dots > 0) {
             paint.setColor(C_CORAL);
             for (int i = 0; i < dots; i++) {

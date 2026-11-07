@@ -1,10 +1,21 @@
 package com.diting.app;
 
+import android.graphics.drawable.GradientDrawable;
+
 /**
- * 两套主题：深色（暖黑）与浅色（暖纸）。
+ * 两套主题：夜纸（深）与日纸（浅）。
  *
- * 不是调亮度，是换一套配色：底色、卡片、描边、字色、珊瑚色一起换。
- * 颜色全部以静态字段暴露，界面代码只读 Theme.XXX，切换后重建视图即可。
+ * 不是调亮度，是换一整套「纸、墨、朱砂」：
+ *   BG      纸面
+ *   CARD    压在纸上的另一张纸（气泡、输入框、月历）
+ *   BORDER  一根头发的分隔线
+ *   INK     墨
+ *   MUTED   淡墨
+ *   FAINT   更淡的墨（注脚）
+ *   ACCENT  朱砂（印章、选中、提醒）
+ *   WASH    朱砂兑水后的纸色（输入框、时间格）
+ *
+ * 界面只读 Theme.XXX；切换主题后重建视图即可。
  */
 public final class Theme {
 
@@ -14,12 +25,17 @@ public final class Theme {
     public static int mode = DARK;
 
     public static int BG;
+    public static int BG_DEEP;
     public static int CARD;
     public static int BORDER;
     public static int INK;
     public static int MUTED;
     public static int FAINT;
     public static int ACCENT;
+    public static int ACCENT_DEEP;
+    public static int WASH;
+    /** 朱砂底上的字色：浅色主题用纸色，深色主题用墨色。 */
+    public static int ON_ACCENT;
 
     static {
         set(DARK);
@@ -31,28 +47,42 @@ public final class Theme {
     public static void set(int m) {
         mode = (m == LIGHT) ? LIGHT : DARK;
         if (mode == LIGHT) {
-            // 暖纸：不是纯白，是偏米的一层，衬线字放上去像书页
-            BG = 0xFFF3EFE6;
-            CARD = 0xFFFBF8F1;
-            BORDER = 0xFFDED5C4;
-            INK = 0xFF24211C;
-            MUTED = 0xFF6B6459;
-            FAINT = 0xFF9A9285;
-            // 浅底上珊瑚要压深一点，否则字压不住
-            ACCENT = 0xFFC9613C;
+            // 日纸：米色纸，不是纯白；朱砂压深一点，压得住纸。
+            BG = 0xFFF2EADA;
+            BG_DEEP = 0xFFEAE0CC;
+            CARD = 0xFFF8F1E3;
+            BORDER = 0xFFD8C9B2;
+            INK = 0xFF2A241C;
+            MUTED = 0xFF6D6151;
+            FAINT = 0xFF9B8D78;
+            ACCENT = 0xFFB4472F;
+            ACCENT_DEEP = 0xFF8C3322;
+            WASH = 0xFFEADBC8;
+            ON_ACCENT = 0xFFF7EFDF;
         } else {
-            BG = 0xFF1B1A18;
-            CARD = 0xFF24231F;
-            BORDER = 0xFF34322C;
-            INK = 0xFFEFEBE2;
-            MUTED = 0xFFA49C90;
-            FAINT = 0xFF6E675E;
-            ACCENT = 0xFFD97757;
+            // 夜纸：暖黑，不是纯黑；纸纹靠两层深浅撑出来。
+            BG = 0xFF16130F;
+            BG_DEEP = 0xFF120F0C;
+            CARD = 0xFF211C16;
+            BORDER = 0xFF3A3127;
+            INK = 0xFFEFE5D2;
+            MUTED = 0xFFA99A83;
+            FAINT = 0xFF78695A;
+            ACCENT = 0xFFD8795B;
+            ACCENT_DEEP = 0xFFE89372;
+            WASH = 0xFF2A2119;
+            ON_ACCENT = 0xFF1A1511;
         }
     }
 
     /** 当前主题下，切过去会变成什么。 */
     public static int toggled() {
         return mode == DARK ? LIGHT : DARK;
+    }
+
+    /** 纸面：从上到下深一点点，整屏不至于死板。 */
+    public static GradientDrawable paper() {
+        return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{BG, BG_DEEP});
     }
 }

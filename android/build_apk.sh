@@ -23,7 +23,7 @@ aapt2 link -o "$OUT/base.apk" -I "$AJ" \
   --manifest app/src/main/AndroidManifest.xml \
   "${FLATS[@]}" \
   --min-sdk-version 26 --target-sdk-version 34 \
-  --version-code 1 --version-name 0.1
+  --version-code 4 --version-name 0.4
 
 echo "[3/7] javac"
 find app/src/main/java -name '*.java' > "$OUT/srcs.txt"

@@ -15,7 +15,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * 把今天一天的原话交给模型，让它以谛听的口吻给每条事件写一句话。
@@ -111,11 +114,15 @@ public class Lm {
     }
 
     private String post(String endpoint, String apiKey, String body) throws Exception {
+        return post(endpoint, apiKey, body, 60000);
+    }
+
+    private String post(String endpoint, String apiKey, String body, int readTimeout) throws Exception {
         String ep = (endpoint == null || endpoint.isEmpty()) ? DEFAULT_ENDPOINT : endpoint;
         HttpURLConnection c = (HttpURLConnection) new URL(ep).openConnection();
         c.setRequestMethod("POST");
         c.setConnectTimeout(20000);
-        c.setReadTimeout(60000);
+        c.setReadTimeout(readTimeout);
         c.setDoOutput(true);
         c.setRequestProperty("Content-Type", "application/json; charset=utf-8");
         c.setRequestProperty("Authorization", "Bearer " + apiKey.trim());
@@ -269,8 +276,10 @@ public class Lm {
           + "3. watch：只写这四类——前后说法矛盾、答应了别人的事、临时改口、反复提到却没行动；最多 2 条，\n"
           + "   每条都要说清「哪里不对」，不要写没有下文的观察。没有就给 []。\n"
           + "4. 每条不超过 24 个字，尽量用他的原话里的词，不许编造。\n"
-          + "5. 宁少勿多：一条要顶用，胜过凑三条。不确定就别写，空数组比硬凑好。\n"
-          + "6. 只输出 JSON，不要解释，不要 markdown 代码块。";
+          + "5. 同一件事只写一条。几句话说的是同一件（比如都在讲「加音频」），就合成一句，把时间、对象、条件并进去；\n"
+          + "   不要一件事写三条。宁可少一条，也不要让他看见三行同一个意思。\n"
+          + "6. 宁少勿多：一条要顶用，胜过凑三条。不确定就别写，空数组比硬凑好。\n"
+          + "7. 只输出 JSON，不要解释，不要 markdown 代码块。";
 
     public void summarize(final String endpoint, final String apiKey, final String model,
                           final List<String> lines, final SummaryCallback cb) {
@@ -599,5 +608,328 @@ public class Lm {
             }
         }
         return s;
+    }
+
+    // ────────────────────────── 写：把一天讲成故事 ──────────────────────────
+
+    /**
+     * 「写」的规矩。
+     *
+     * 谛听不是记录员，是伏在脚边的石兽：它把白天听见的话，夜里讲成一篇短篇小说。
+     * 第一人称是谛听，称呼主人用「你」；只许把环境、心理、气氛写厚，不许添一件没发生的事。
+     */
+    private static final String ARTICLE_SYSTEM =
+            "你是谛听，一头伏在主人脚边的石兽。你只听，不评。白天你听见了这个人说过的每一句话；夜里，你用他的原话，替他把这一天讲成一篇短篇小说。\n"
+            + "\n"
+            + "写法：\n"
+            + "1. 用第一人称「我」——你是谛听，不是他。你听得见，看不见；提到他时用「你」。\n"
+            + "2. 这是短篇小说，不是网文连载、不是日记、不是总结。一篇讲完一件事，有开头、有转折、有结尾；句子短，留白多，不解释道理。\n"
+            + "3. 叙事要抓人，像信息流一样：开头三句之内给一个钩子（一句没头没尾的原话、一个声音、一个动作的中途）；之后每 300–500 字给一个新信息、小转折或情绪落点；结尾留一个回响，或轻轻反转。\n"
+            + "4. 底色是聊斋式的志怪。这一篇的叙事手法由用户消息指定，只按指定的那一种写。\n"
+            + "5. 情节只能来自这一天原话里出现过的人、事、物；不许新增人物、对话或事件，也不许让人物拿起、使用、面对原话里没有的器物（原话说「音频」，就写音频或声音，不要写铜匣子、铜丝、方匣子）。灯、窗、风这类环境可以写，但不能变成推动情节的道具。引语只许用原话，可以删，不可以改写。不替他下结论，不说教。\n"
+            + "6. 字数按素材定：用户消息里给出目标区间，区间上限是硬上限；写完后自己数一遍汉字，超了就删到区间内，宁可写下限附近，也不要超过上限。不要为凑字加情节。\n"
+            + "7. 语音识别常把一句话重复十几遍，或把语气词记成拼音（例如「留留留ge」）。这些是噪声：按上下文把意思理顺再写，不要把重复字、拼音原样搬进篇名或正文引语。\n"
+            + "8. 篇名要像短篇小说的题目：二到八个汉字，干净，不要用噪声词。\n"
+            + "9. 只输出正文，不分章。不要解释、不要 Markdown、不要代码块。\n"
+            + "\n"
+            + "格式（严格遵守）：\n"
+            + "第一行：篇名：<二到八个字>\n"
+            + "第二行起：正文（段落之间空一行）";
+
+    /** 流式版：边收边给整篇的当前文本，阅读页拿它逐字显示。 */
+    public interface ArticleStreamCallback {
+        void onDelta(String partial);
+
+        void onDone(String full, boolean fromModel, String note);
+    }
+
+    /** 阻塞版：自动写用，收齐了再交给调用方落盘。 */
+    public interface ArticleCallback {
+        void onDone(String text, boolean fromModel, String note);
+    }
+
+    public void writeArticleStream(final String endpoint, final String apiKey, final String model,
+                                   final List<String> lines, final ArticleStreamCallback cb) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String note = "";
+                String full = null;
+                boolean fromModel = false;
+                try {
+                    if (apiKey == null || apiKey.trim().isEmpty()) {
+                        throw new IllegalStateException("没有填 key");
+                    }
+                    String body = buildArticleBody(model, lines, true);
+                    full = postArticleStream(endpoint, apiKey, body, cb);
+                    fromModel = true;
+                } catch (Throwable t) {
+                    note = t.getMessage() == null ? t.getClass().getSimpleName() : t.getMessage();
+                    Log.w(TAG, "writeArticleStream failed", t);
+                }
+                if (full == null || full.trim().isEmpty()) {
+                    full = fallbackArticle(lines);
+                    fromModel = false;
+                    if (note.isEmpty()) {
+                        note = "用了兜底";
+                    }
+                }
+                final String f = full;
+                final boolean ok = fromModel;
+                final String n = note;
+                main.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cb.onDone(f, ok, n);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    public void writeArticle(final String endpoint, final String apiKey, final String model,
+                             final List<String> lines, final ArticleCallback cb) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String note = "";
+                String full = null;
+                boolean fromModel = false;
+                try {
+                    if (apiKey == null || apiKey.trim().isEmpty()) {
+                        throw new IllegalStateException("没有填 key");
+                    }
+                    String body = buildArticleBody(model, lines, false);
+                    full = post(endpoint, apiKey, body, 300000);
+                    fromModel = true;
+                } catch (Throwable t) {
+                    note = t.getMessage() == null ? t.getClass().getSimpleName() : t.getMessage();
+                    Log.w(TAG, "writeArticle failed", t);
+                }
+                String text = null;
+                if (fromModel) {
+                    try {
+                        text = contentOf(full);
+                    } catch (Throwable t) {
+                        note = "回包读不懂";
+                        text = null;
+                    }
+                }
+                if (text == null || text.trim().isEmpty()) {
+                    text = fallbackArticle(lines);
+                    fromModel = false;
+                    if (note.isEmpty()) {
+                        note = "用了兜底";
+                    }
+                }
+                final String f = text;
+                final boolean ok = fromModel;
+                final String n = note;
+                main.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cb.onDone(f, ok, n);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private String buildArticleBody(String model, List<String> lines, boolean stream) throws Exception {
+        // 去重后的素材量：重复的原话不算篇幅，免得把噪声当成长度。
+        Set<String> seen = new LinkedHashSet<String>();
+        int material = 0;
+        for (int i = 0; i < lines.size(); i++) {
+            String s = lines.get(i);
+            if (s == null) {
+                continue;
+            }
+            String t = s.trim();
+            if (t.isEmpty() || !seen.add(t)) {
+                continue;
+            }
+            material += t.length();
+        }
+        int lo;
+        int hi;
+        if (material < 600) {
+            lo = 700;
+            hi = 1300;
+        } else if (material < 1500) {
+            lo = 900;
+            hi = 1500;
+        } else if (material < 3000) {
+            lo = 1200;
+            hi = 2000;
+        } else if (material < 6000) {
+            lo = 1800;
+            hi = 2800;
+        } else {
+            lo = 2500;
+            hi = 3500;
+        }
+        // 每次随机一条叙事手法和一个开头：像信息流，不重样。
+        String[] recipes = {
+                "欧·亨利式：结尾轻轻翻一个面，让前文的一个细节重新有意义",
+                "海明威式：把情绪压在动作和物件下面，少解释，结尾留白",
+                "契诃夫式：不靠强情节，让日常里慢慢渗出一点不安",
+                "鲁迅式：短句，冷峻，白描，结尾留一点冷意"
+        };
+        String[] hooks = {
+                "从一句没头没尾的原话开始",
+                "从一件器物发出的声音开始",
+                "从一个动作的中途开始",
+                "从谛听听见的第一个异常开始"
+        };
+        Random random = new Random();
+        String recipe = recipes[random.nextInt(recipes.length)];
+        String hook = hooks[random.nextInt(hooks.length)];
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("这一天说过的话，按时间顺序：\n");
+        for (int i = 0; i < lines.size(); i++) {
+            sb.append(i + 1).append(". ").append(lines.get(i)).append("\n");
+        }
+        sb.append("\n这次的写法：\n");
+        sb.append("- 开头：").append(hook).append("\n");
+        sb.append("- 叙事手法：").append(recipe).append("\n");
+        sb.append("- 素材 ").append(material).append(" 字（去重后），这一篇目标 ")
+                .append(lo).append("–").append(hi).append(" 字。\n");
+        sb.append("\n按规则把这一天写成一篇短篇小说。");
+        JSONObject req = new JSONObject();
+        req.put("model", model == null || model.isEmpty() ? DEFAULT_MODEL : model);
+        JSONArray msgs = new JSONArray();
+        JSONObject sys = new JSONObject();
+        sys.put("role", "system");
+        sys.put("content", ARTICLE_SYSTEM);
+        msgs.put(sys);
+        JSONObject user = new JSONObject();
+        user.put("role", "user");
+        user.put("content", sb.toString());
+        msgs.put(user);
+        req.put("messages", msgs);
+        req.put("temperature", 1.0);
+        req.put("max_tokens", 8000);
+        req.put("stream", stream);
+        return req.toString();
+    }
+
+    /** 和 postStream 一样的读法，只是这里收的是整篇正文。 */
+    private String postArticleStream(String endpoint, String apiKey, String body,
+                                     final ArticleStreamCallback cb) throws Exception {
+        String ep = (endpoint == null || endpoint.isEmpty()) ? DEFAULT_ENDPOINT : endpoint;
+        HttpURLConnection c = (HttpURLConnection) new URL(ep).openConnection();
+        c.setRequestMethod("POST");
+        c.setConnectTimeout(20000);
+        c.setReadTimeout(300000);
+        c.setDoOutput(true);
+        c.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+        c.setRequestProperty("Authorization", "Bearer " + apiKey.trim());
+        c.setRequestProperty("Accept", "text/event-stream");
+
+        byte[] payload = body.getBytes(StandardCharsets.UTF_8);
+        c.setFixedLengthStreamingMode(payload.length);
+        OutputStream os = c.getOutputStream();
+        os.write(payload);
+        os.flush();
+        os.close();
+
+        int code = c.getResponseCode();
+        if (code < 200 || code >= 300) {
+            InputStream err = c.getErrorStream();
+            StringBuilder sb = new StringBuilder();
+            if (err != null) {
+                BufferedReader ebr = new BufferedReader(new InputStreamReader(err, StandardCharsets.UTF_8));
+                String el;
+                while ((el = ebr.readLine()) != null) {
+                    sb.append(el);
+                }
+                ebr.close();
+            }
+            throw new IllegalStateException("HTTP " + code + " " + cut(sb.toString(), 160));
+        }
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), StandardCharsets.UTF_8));
+        StringBuilder acc = new StringBuilder();
+        long lastEmit = 0;
+        String line;
+        while ((line = br.readLine()) != null) {
+            if (!line.startsWith("data:")) {
+                continue;
+            }
+            String chunk = line.substring(5).trim();
+            if (chunk.isEmpty()) {
+                continue;
+            }
+            if ("[DONE]".equals(chunk)) {
+                break;
+            }
+            String delta = deltaOf(chunk);
+            if (delta == null || delta.isEmpty()) {
+                continue;
+            }
+            acc.append(delta);
+            long now = SystemClock.uptimeMillis();
+            if (now - lastEmit >= 60) {
+                lastEmit = now;
+                final String partial = acc.toString();
+                main.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        cb.onDelta(partial);
+                    }
+                });
+            }
+        }
+        br.close();
+        return acc.toString();
+    }
+
+    /** 非流式回包：取 choices[0].message.content。 */
+    private String contentOf(String resp) throws Exception {
+        JSONObject o = new JSONObject(resp);
+        JSONArray choices = o.optJSONArray("choices");
+        if (choices == null || choices.length() == 0) {
+            return null;
+        }
+        JSONObject first = choices.optJSONObject(0);
+        if (first == null) {
+            return null;
+        }
+        JSONObject msg = first.optJSONObject("message");
+        if (msg == null) {
+            return null;
+        }
+        String s = msg.optString("content", "");
+        return s == null ? "" : s;
+    }
+
+    /**
+     * 模型不可用时的兜底：不编，只把当天几句原话摆成一段志怪。
+     * 读起来短，但它说的每个字都发生过。
+     */
+    private String fallbackArticle(List<String> lines) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("篇名：听了一夜\n");
+        sb.append("我伏在门槛边，听你把这一天说完。\n");
+        int n = 0;
+        for (int i = 0; i < lines.size() && n < 6; i++) {
+            String d = pickDetail(lines.get(i));
+            if (d.isEmpty()) {
+                continue;
+            }
+            d = d.replaceAll("[。！？!?，,、；;：:]+$", "");
+            if (d.isEmpty()) {
+                continue;
+            }
+            n++;
+            sb.append("你说：").append(d).append("。\n");
+            sb.append("我把这句话记下，像把一枚凉石子收进怀里。\n");
+        }
+        if (n == 0) {
+            sb.append("今天你什么都没说。风从窗缝里进来，我替你听了一夜。\n");
+        }
+        sb.append("天快亮的时候我明白：故事不是编出来的，是你一句一句说出来的。\n");
+        return sb.toString();
     }
 }

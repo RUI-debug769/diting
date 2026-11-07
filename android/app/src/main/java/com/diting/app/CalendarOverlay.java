@@ -59,7 +59,7 @@ public class CalendarOverlay {
         }
 
         layer = new FrameLayout(act);
-        layer.setBackgroundColor(0xB8000000);
+        layer.setBackgroundColor(0x99000000);
         layer.setClickable(true);
         layer.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -69,12 +69,12 @@ public class CalendarOverlay {
 
         LinearLayout card = new LinearLayout(act);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(16), dp(14), dp(16), dp(12));
+        card.setPadding(dp(20), dp(18), dp(20), dp(14));
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(Theme.CARD);
-        bg.setCornerRadius(dp(22));
-        bg.setStroke(dp(1), Theme.BORDER);
+        bg.setCornerRadius(dp(4));
         card.setBackground(bg);
+        card.setElevation(dp(10));
         card.setClickable(true);
         card.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -123,7 +123,7 @@ public class CalendarOverlay {
 
         FrameLayout.LayoutParams cp = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        cp.setMargins(dp(22), dp(90), dp(22), dp(90));
+        cp.setMargins(dp(24), dp(100), dp(24), dp(100));
         layer.addView(card, cp);
 
         act.addContentView(layer, new FrameLayout.LayoutParams(
@@ -190,7 +190,7 @@ public class CalendarOverlay {
             row.setOrientation(LinearLayout.HORIZONTAL);
             for (int i = 0; i < 7; i++) {
                 row.addView(cell((Calendar) day.clone(), today, month),
-                        new LinearLayout.LayoutParams(0, dp(36), 1f));
+                        new LinearLayout.LayoutParams(0, dp(40), 1f));
                 day.add(Calendar.DAY_OF_MONTH, 1);
             }
             grid.addView(row);
@@ -213,13 +213,14 @@ public class CalendarOverlay {
         t.setTypeface(Typeface.create("serif", Typeface.NORMAL));
         t.setGravity(Gravity.CENTER);
         if (isSel) {
-            t.setTextColor(Theme.BG);
-            GradientDrawable fill = new GradientDrawable();
-            fill.setShape(GradientDrawable.OVAL);
-            fill.setColor(Theme.ACCENT);
+            t.setTextColor(Theme.ACCENT);
+            GradientDrawable ring = new GradientDrawable();
+            ring.setShape(GradientDrawable.OVAL);
+            ring.setColor(0x00000000);
+            ring.setStroke(dp(1), Theme.ACCENT);
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(dp(30), dp(30));
             lp.gravity = Gravity.CENTER;
-            t.setBackground(fill);
+            t.setBackground(ring);
             t.setLayoutParams(lp);
         } else if (isToday) {
             t.setTextColor(Theme.ACCENT);
